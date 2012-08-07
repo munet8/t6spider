@@ -1,0 +1,1 @@
+VLゴシックフォントファミリ http://vlgothic.dicey.org/

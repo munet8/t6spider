@@ -1,0 +1,61 @@
+
+screen 0, 48*4, 32*13, 0
+
+for i, 0, 4, 1
+	switch i
+	case 0
+		color 0, 0, 153
+		suits = "ª"
+		swbreak
+	case 1
+		color 204, 0, 0
+		suits = "©"
+		swbreak
+	case 2
+		color 136, 119, 0
+		suits = "¨"
+		swbreak
+	case 3
+		color 0, 102, 34
+		suits = "§"
+		swbreak
+	swend
+
+	for j, 1, 14, 1
+
+		pos i*48, j*32 - 40
+		font "Symbol",36
+		mes suits
+
+		pos i*48+28, j*32 - 34
+		font "VL ƒSƒVƒbƒN",30
+		if ( 1 < j ) & ( j < 10 ) :mes j
+		if ( j = 10 ) {
+			pos i*48+21, j*32 - 34
+			mes "1"
+			pos i*48+33, j*32 - 34
+			mes "0"
+		}
+		if ( j = 1 )  :mes "A"
+		if ( j = 11 ) :mes "J"
+		if ( j = 12 ) :mes "Q"
+		if ( j = 13 ) :mes "K"
+	next
+
+next
+
+; •â•ü
+;color 102,102,102
+color 255,255,255
+
+for i, 0, 13, 1
+	line 0, i*32, 256, i*32
+next
+
+for i, 0, 4, 1
+	line i*48, 0, i*48, 416
+next
+
+bmpsave "fon_suit.bmp"
+
+end
