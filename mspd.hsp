@@ -22,6 +22,12 @@ int_mousex = 0
 int_mousey = 0
 randomize                           ; 乱数初期化
 
+str_titl1="The quick brown fox"
+str_titl2="jumps over the lazy dog."
+
+; 拡大率の設定
+float_zoom = 0.6
+
 ;-------------------------------------------------------------------------------
 ;
 ; タイトル
@@ -35,19 +41,17 @@ repeat
 	redraw 0
 
 	stick key, 15
-	if ( key & 128 ) :end
+	;if ( key & 128 ) :end
 	if ( key & 256 ) {
 		int_mousex = mousex
 		int_mousey = mousey
 		break
 	}
 
-;	pos 0, 0 :fprint "(x, y) = (" + int_mousex + ", " + int_mousey + ")"
-
-	pos 0, int_mousey
-	fprint "The quick brown fox"
-	pos 0, int_mousey + 32
-	fprint "jumps over the lazy dog."
+	pos 0, 0
+	fprint str_titl1
+	pos 0, g_font_y
+	fprint str_titl2
 
 	redraw 1
 	await 32
@@ -98,12 +102,12 @@ for i, 6, 104, 1 :arr_card(0, i) = 0 :next
 for i, 0,  4, 1 :arr_turnup(i) = 4 :next
 for i, 4, 10, 1 :arr_turnup(i) = 3 :next
 
-
-; 拡大率の設定
-float_zoom = 0.6
-
 ; 難易度の設定
 int_difficulty = 1
+
+; 描画xy座標
+int_screen_x = 0
+int_screen_y = 0
 
 ; 移動セル格納変数
 int_move_x = -1
@@ -134,7 +138,8 @@ repeat
 
 	stick key, 15
 	if ( key & 128 ) {
-		if ( int_spider = 5 ) :end
+		; カード配布
+		if ( int_spider = 5 ) :break
 		for i, 0, 10, 1
 			j = -1 :do :j++ :until ( arr_card(i, j) = 0 )
 			if ( j = 0 ) :int_err_freecell = 50
@@ -143,41 +148,22 @@ repeat
 			for i, 0, 10, 1
 				j = -1 :do :j++ :until ( arr_card(i, j) = 0 )
 				arr_card(i, j) = arr_standby( int_spider, i )
+
+				; 完成チェック
+				gosub *sub_chk_complete
+
 			next
 			int_spider++
 		}
 	}
 
-	; セル移動
+	; クリックセル移動
 	if ( key & 256 ) {
-		i = int( 1.0 * int_mousex / float_zoom / g_font_suit_x )
-		j = int( 1.0 * int_mousey / float_zoom / g_font_suit_y )
+		i = int( 1.0 * (int_mousex - int_screen_x) / float_zoom / g_font_suit_x )
+		j = int( 1.0 * (int_mousey - int_screen_y) / float_zoom / g_font_suit_y )
 		if ( 0 <= i ) & ( i < 10 ) & ( 0 <= j ) & ( j < 104 ) {
 			if (( arr_turnup(i) < j ) & ( arr_card(i,j) > 0 )) | ( j = 0 ) {
-				if ( int_move_x < 0 ) {
-					; セル取得可能判定
-					m = 0
-					for k, j, 104, 1
-						if ( arr_card(i, k+1) = 0 ) {
-							_break
-						}
-						a = arr_card(i, k) & 15
-						b = (arr_card(i, k+1)&15)+1
-						if ( a != b ) {
-							m = 1
-							_break
-						}
-					next
-					
-					if ( m=0 ) {
-						; セル取得
-						int_move_x = i
-						int_move_y = j
-					} else {
-						int_move_x = -1
-						int_move_y = -1
-					}
-				} else {
+				if ( int_move_x >= 0 ) {
 					if ( i != int_move_x ) {
 						a = arr_card(int_move_x, int_move_y) & 15
 						b = (arr_card(i, j)&15)-1
@@ -193,34 +179,8 @@ repeat
 							next
 
 							; 完成チェック
-							a = arr_card(i, l) & 15
-							if ( a = 1 ) {
-								for k, l, 0, -1
+							gosub *sub_chk_complete
 
-									int_suit = ( arr_card(i, k-1) >> 4 ) \ int_difficulty
-									if ( int_suit = 0 ) :int_suit = int_difficulty
-									int_number = arr_card(i, k-1) & 15
-									a = int_suit * 16 + int_number
-
-									int_suit = ( arr_card(i, k) >> 4 ) \ int_difficulty
-									if ( int_suit = 0 ) :int_suit = int_difficulty
-									int_number = arr_card(i, k) & 15
-									b = int_suit * 16 + int_number
-
-									if ( a != (b+1) ) :_break
-									if ( (a & 15) = 13 ) {
-										for m, k-1, 104, 1
-											arr_card(i, m) = 0
-											if ( arr_card(i, m+1) = 0 ) :_break
-										next
-										; 一枚開ける
-										if ( arr_turnup(i) = (k-2) ) {
-											if ( arr_turnup(i) >= 0 ) :arr_turnup(i)-=1
-										}
-										_break
-									}
-								next
-							}
 							; 一枚開ける
 							if ( arr_turnup(int_move_x) = (int_move_y-1) ) {
 								if ( arr_turnup(int_move_x) >= 0 ) :arr_turnup(int_move_x)-=1
@@ -229,6 +189,30 @@ repeat
 					}
 					int_move_x = -1
 					int_move_y = -1
+				}
+				if ( int_move_x < 0 ) {
+					; セルつまみ可能判定
+					m = 0
+					for k, j, 104, 1
+						if ( arr_card(i, k+1) = 0 ) {
+							_break
+						}
+						a = arr_card(i, k) & 15
+						b = (arr_card(i, k+1)&15)+1
+						if ( a != b ) {
+							m = 1
+							_break
+						}
+					next
+
+					if ( m = 0 ) & ( arr_card(i,j) > 0 ) {
+						; セルをつまむ
+						int_move_x = i
+						int_move_y = j
+					} else {
+						int_move_x = -1
+						int_move_y = -1
+					}
 				}
 			} else {
 				int_move_x = -1
@@ -240,8 +224,8 @@ repeat
 		}
 	}
 
-	; ズーム
-	getkey gky, 2
+	; ズーム、左右移動
+	getkey gky, 4
 	if ( gky = 1 ) {
 		if (( int_mousey_before - int_mousey ) > 1 ) {
 			float_zoom = double(int(92.0 * float_zoom)) / 100.0
@@ -251,7 +235,54 @@ repeat
 			float_zoom = double(int(108.0 * float_zoom)) / 100.0
 			if float_zoom > 2.0 :float_zoom = 2.0
 		}
+ 	}
+	getkey gky, 1
+ 	if ( gky = 1 ) {
+		a = int_mousex_before - int_mousex
+		if ( abs(a) > 3 ) {
+			int_screen_x -= a
+		}
+		a = int_mousey_before - int_mousey
+		if ( abs(a) > 3 ) {
+			int_screen_y -= a
+		}
 	}
+
+	; 画面位置調整
+	int_max_y = 0
+	for i, 0, 10, 1
+		j = get_rows( arr_card, i )
+		if ( int_max_y < j ) :int_max_y = j
+	next
+	b = int(10.0 * g_font_suit_x * float_zoom)
+	if ( b < g_screen_x ) {
+		if ( int_screen_x < 0 ) :int_screen_x = 0
+		if (( b + int_screen_x ) > g_screen_x ) :int_screen_x = g_screen_x - b
+	} else {
+		if ( int_screen_x > 0 ) :int_screen_x = 0
+		if (( b + int_screen_x ) < g_screen_x ) :int_screen_x = g_screen_x - b
+	}
+	if ( int_screen_y > 0 ) :int_screen_y = 0
+	c = int(1.0 * int_max_y * g_font_suit_y * float_zoom)
+	if ( c > g_screen_y ) {
+		if (( c + int_screen_y ) < g_screen_y ) :int_screen_y = g_screen_y - c
+	} else {
+		int_screen_y = 0
+	}
+
+	; 画面遷移制御
+	if ( int_max_y = 0 ) :break
+
+	; 疑似背景
+	a = int_screen_x
+	b = int(10.0 * g_font_suit_x * float_zoom) + int_screen_x
+	color 153, 204, 153
+	boxf a, 0, b, g_screen_y
+	color 0, 0, 0
+	line a, 0, a, g_screen_y
+	line b, 0, b, g_screen_y
+	c = int(1.0 * int_max_y * g_font_suit_y * float_zoom ) + int_screen_y
+	line a, c , b, c
 
 	; 場の表示
 	for i, 0, 10, 1
@@ -267,18 +298,18 @@ repeat
 				int_x = int(1.0 * i * g_font_suit_x * float_zoom)
 				int_y = int(1.0 * j * g_font_suit_y * float_zoom)
 				if ( arr_turnup(i) < j ) { ; カード描画
-					pos int_x, int_y
+					pos int_x + int_screen_x, int_y + int_screen_y
 					suitprint int_suit, int_number, float_zoom
 				} else { ; 裏返し
 					color 153, 0, 0
-					boxf int_x, int_y, int_x + int(1.0 * g_font_suit_x * float_zoom), int_y + int(1.0 * g_font_suit_y * float_zoom)
+					boxf int_x + int_screen_x, int_y + int_screen_y, int_x + int_screen_x + int(1.0 * g_font_suit_x * float_zoom), int_y + int_screen_y + int(1.0 * g_font_suit_y * float_zoom)
 				}
 
 				; 枠を書く
-				pos int_x, int_y
+				pos int_x + int_screen_x, int_y + int_screen_y
 				int_x_plus = int(1.0 * g_font_suit_x * float_zoom)
 				int_y_plus = int(1.0 * g_font_suit_y * float_zoom)
-				suitborder int_x, int_y, int_x_plus, int_y_plus, 0, 0, 0
+				suitborder int_x + int_screen_x, int_y + int_screen_y, int_x_plus, int_y_plus, 0, 0, 0
 			}
 			j++
 		until ( arr_card(i, j) = 0 )
@@ -297,17 +328,17 @@ repeat
 		int_x = int((1.0 * i * g_font_suit_x - g_font_suit_x/8) * float_zoom)
 		int_y = int((1.0 * j * g_font_suit_y - g_font_suit_y/8) * float_zoom)
 
-		pos int_x, int_y
+		pos int_x + int_screen_x, int_y + int_screen_y
 		f = 1.25*float_zoom
 		suitprint int_suit, int_number, f
 
 		int_x_plus = int((1.0 * g_font_suit_x + g_font_suit_x/4) * float_zoom)
 		int_y_plus = int((1.0 * g_font_suit_y + g_font_suit_y/4) * float_zoom)
-		suitborder int_x, int_y, int_x_plus, int_y_plus, 255, 255, 0
+		suitborder int_x + int_screen_x, int_y + int_screen_y, int_x_plus, int_y_plus, 255, 255, 0
 	}
 
-	i = int( 1.0 * int_mousex / float_zoom / g_font_suit_x )
-	j = int( 1.0 * int_mousey / float_zoom / g_font_suit_y )
+	i = int( 1.0 * (int_mousex - int_screen_x ) / float_zoom / g_font_suit_x )
+	j = int( 1.0 * (int_mousey - int_screen_y ) / float_zoom / g_font_suit_y )
 	if ( 0 <= i ) & ( i < 10 ) & ( 0 <= j ) & ( j < 104 ) {
 		if ( arr_turnup(i) < j ) & ( arr_card(i,j) > 0 ) {
 			int_x = int((1.0 * i * g_font_suit_x - g_font_suit_x/4) * float_zoom)
@@ -317,17 +348,17 @@ repeat
 			if ( int_suit = 0 ) :int_suit = int_difficulty
 			int_number = arr_card(i, j) & 15
 
-			pos int_x, int_y
+			pos int_x + int_screen_x, int_y + int_screen_y
 			f = 1.5*float_zoom
 			suitprint int_suit, int_number, f
 
 			int_x_plus = int((1.0 * g_font_suit_x + g_font_suit_x/2) * float_zoom)
 			int_y_plus = int((1.0 * g_font_suit_y + g_font_suit_y/2) * float_zoom)
-			suitborder int_x, int_y, int_x_plus, int_y_plus, 255, 0, 0
+			suitborder int_x + int_screen_x, int_y + int_screen_y, int_x_plus, int_y_plus, 255, 0, 0
 		}
 	}
 
-	pos 0, 480 - g_font_y
+	pos 0, g_screen_y - g_font_y
 	i = 5 - int_spider
 	if ( int_err_freecell > 0 ) {
 		fprint "Freecell Exists!"
@@ -341,6 +372,30 @@ repeat
 
 loop
 
+if ( int_max_y = 0 ) {
+	str_titl1 = "You Win(^-^)"
+	str_titl2 = ""
+} else {
+	str_titl1 = "You Lose(T_T)"
+	str_titl2 = ""
+}
 
+goto *titl
 
 end
+
+*sub_chk_complete
+	if ( chk_complete( arr_card, i, arr_turnup(i), int_difficulty ) = 1 ) {
+		for k, 0, 104, 1
+			if ( arr_card(i, k) = 0 ) : _break;
+		next
+		for m, k-1, k-14, -1
+			arr_card(i, m) = 0
+		next
+		; 一枚開ける
+		if ( arr_turnup(i) = m ) {
+			if ( arr_turnup(i) >= 0 ) :arr_turnup(i)-=1
+		}
+	}
+
+	return
