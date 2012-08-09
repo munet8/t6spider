@@ -65,13 +65,13 @@
 	for j, 0, 104, 1
 		if ( _a(_i, j) = 0 ) :_break
 	next
-	j--
 	;if ( j < 13 ) :return 0
+	j--
 
 	a = _a(_i, j) & 15
 	if ( a = 1 ) {
 		for k, j, 0, -1
-			if ( k <= _t ) & ( _t > 0 ) :_break
+			if ( k <= _t ) & ( _t >= 0 ) & ( _a(_i, k-1) > 0 ) :_break
 			suit = ( _a(_i, k-1) >> 4 ) \ _d
 			if ( suit = 0 ) :suit = _d
 			number = _a(_i, k-1) & 15
