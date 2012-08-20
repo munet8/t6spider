@@ -10,8 +10,10 @@
 #const global g_screen_x 320
 #const global g_screen_y 480
 
-; トレースビュー
-#const global global_trace_row 4
+; トレースビュー行数
+; リリース時は 0
+;#const global global_trace_row 4
+#const global global_trace_row 0
 
 #module
 #deffunc fprint str _p1
@@ -107,8 +109,8 @@
 	; _d 難易度
 	; 返り値 上のほうのカードの数字
 
-	if ( _j < 1 )   :return 0
-	if ( _j <= _t ) :return 0
+	if ( _j < 1 ) :return 0
+	if ( ( _j - 1 ) <= _t ) :return 0
 
 	card_before  = getsuit( _a(_i, _j-1), _d) * 16 + getnumber( _a(_i, _j-1))
  	card_current = getsuit( _a(_i,   _j), _d) * 16 + getnumber( _a(_i,   _j))
@@ -122,7 +124,7 @@
 #global
 
 #module
-#deffunc suitborder int _x1, int _y1, int _x2, int _y2, int _r, int _g, int b
+#deffunc suit_border int _x1, int _y1, int _x2, int _y2, int _r, int _g, int b
 	; カードの枠を書く
 	pos _x1, _y1
 	color _r, _g, _b
