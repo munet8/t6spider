@@ -34,6 +34,12 @@ arr_strdif(1) = "2 suits ｣､x4"
 arr_strdif(2) = "3 suits ｣､x3,･x2"
 arr_strdif(3) = "4 suits ｣､･ｦx2"
 
+sdim arr_strsuit, 4, 4
+arr_strsuit(0) = "｣"
+arr_strsuit(1) = "､"
+arr_strsuit(2) = "･"
+arr_strsuit(3) = "ｦ"
+
 ; 拡大率の設定
 float_zoom = 0.6
 
@@ -158,6 +164,8 @@ int_spider = 0
 int_err_freecell = 0
 ; スコア
 int_score = 500
+; 完成したスート
+sdim arr_finished, 4, 8
 ; 戻るの初期化
 back_init
 
@@ -392,6 +400,19 @@ repeat
 	boxf a, c, b, d
 	color 0, 0, 0
 
+	gmode 5, , , 153
+	; 残り場数
+	for i, 4, -1, -1
+		pos g_screen_x - ( 2 * g_font_x ), int_screen_y - ( g_font_y * ( i+1 ) )
+		if ( i < int_spider ) :fprint "｢" :else :fprint "｡"
+	next
+	; 完成したスートの表示
+	for i, 0, 8, 1
+		pos g_screen_x - ( 4 * g_font_x ), int_screen_y - ( g_font_y * ( i+1 ) )
+		fprint arr_finished(i)
+	next
+	gmode 0
+
 	; 場の表示
 	for i, 0, 10, 1
 		j = 0
@@ -495,12 +516,8 @@ repeat
 	} else {
 		pos 0, g_screen_y - g_font_y
 		fprint "Score: " + int_score
-
-		pos g_screen_x - g_font_x * 10, g_screen_y - g_font_y
-		str_spider = ""
-		for i, 0, int_spider    , 1 :str_spider += "｢" :next
-		for i, 0, 5 - int_spider, 1 :str_spider += "｡" :next
-		fprint str_spider
+		pos g_screen_x - ( 5 * g_font_x ), g_screen_y - g_font_y
+		if ( int_spider < 5 ) :fprint "Deal" :else :fprint "Lose"
 	}
 	color 0, 0, 0
 	line 0, g_screen_y - g_font_y, g_screen_x, g_screen_y - g_font_y
@@ -525,6 +542,7 @@ end
 *sub_chk_complete
 	if ( chk_complete( arr_card, i, arr_turnup(i), int_difficulty ) = 1 ) {
 		k = get_rows( arr_card, i )
+		n = getsuit( arr_card( i, k-1 ), int_difficulty ) - 1
 		for m, k-1, k-14, -1
 			arr_card(i, m) = 0
 		next
@@ -532,6 +550,13 @@ end
 		if ( arr_turnup(i) = m ) {
 			if ( arr_turnup(i) >= 0 ) :arr_turnup(i)-=1
 		}
+		; 完成表示
+		for o, 0, 8, 1
+			if ( arr_finished(o) = "" ) {
+				arr_finished(o) = arr_strsuit( n )
+				_break
+			}
+		next
 		int_score += 100
 		; 戻るの初期化
 		back_init
