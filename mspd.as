@@ -16,7 +16,19 @@
 #const global global_trace_row 0
 
 #module
-#deffunc fprint str _p1
+#defcfunc log10 int _x
+	; log10(x)
+	; 常用対数（切捨て）を返す
+	if ( _x <= 0 ) {
+		ret = 1
+	} else {
+		ret = int ( logf(_x) / logf(10) )
+	}
+	return ret
+#global
+
+#module
+#deffunc fprint str _p1, int _charset
 	;	fprint "message"
 	;	(画像を使用したフォント表示を行ないます)
 	;	"message" : 表示するメッセージ
@@ -34,9 +46,9 @@
 			continue
 		} else {
 			if ( a1 & 128 ) {
-				celput 2 , a1 - 160
+				celput _charset+2 , a1 - 160
 			} else {
-				celput 1 , a1 - 32
+				celput _charset , a1 - 32
 			}
 		}
 	loop
@@ -49,7 +61,7 @@
 	; _i suit
 	; _j number
 	x = (_j-1)*4 + (_i-1)
-	celput 3, x, _f, _f
+	celput 4, x, _f, _f
 	return
 #global
 
@@ -79,6 +91,8 @@
 		ret = -1
 	}
 	return ret
+#defcfunc back_length
+	return index
 #global
 
 #module

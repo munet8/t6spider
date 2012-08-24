@@ -15,11 +15,14 @@ title "munet spider"
 celload "fon_char.png", 1                ; 文字画像のロード
 celdiv 1, g_font_x, g_font_y, 0, 0       ; 文字画像の分割
 
-celload "fon_cha2.png", 2                ; 文字画像のロード
-celdiv 2, g_font_y, g_font_y, 0, 0       ; 文字画像の分割
+celload "fon_chab.png", 2                ; 文字画像のロード
+celdiv 2, g_font_x, g_font_y, 0, 0       ; 文字画像の分割
 
-celload "fon_suit.png", 3                ; カード画像のロード
-celdiv 3, g_font_suit_x, g_font_suit_y, 0, 0 ; 同じく分割
+celload "fon_cha2.png", 3                ; 文字画像のロード
+celdiv 3, g_font_y, g_font_y, 0, 0       ; 文字画像の分割
+
+celload "fon_suit.png", 4                ; カード画像のロード
+celdiv 4, g_font_suit_x, g_font_suit_y, 0, 0 ; 同じく分割
 
 int_mousex = 0
 int_mousey = 0
@@ -35,10 +38,10 @@ arr_strdif(2) = "3 suits ｣､x3,･x2"
 arr_strdif(3) = "4 suits ｣､･ｦx2"
 
 sdim arr_strsuit, 4, 4
-arr_strsuit(0) = "｣"
-arr_strsuit(1) = "､"
-arr_strsuit(2) = "･"
-arr_strsuit(3) = "ｦ"
+arr_strsuit(0) = "ｫ"
+arr_strsuit(1) = "ｬ"
+arr_strsuit(2) = "ｭ"
+arr_strsuit(3) = "ｮ"
 
 ; 拡大率の設定
 float_zoom = 0.6
@@ -81,9 +84,9 @@ repeat
 	}
 
 	pos 0, 0
-	fprint str_titl1
+	fprint str_titl1, 1
 	pos 0, g_font_y
-	fprint str_titl2
+	fprint str_titl2, 1
 
 	for n, 0, 4, 1
 		i = 2 * g_font_x
@@ -95,7 +98,7 @@ repeat
 		i += g_font_x
 		j = ( 4*n + 5 ) * g_font_y
 		pos i, j
-		fprint arr_strdif(n)
+		fprint arr_strdif(n), 1
 	next
 
 	redraw 1
@@ -160,8 +163,8 @@ int_move_y = -1
 
 ; カードを配った回数
 int_spider = 0
-; フリーセル存在しますよエラー
-int_err_freecell = 0
+; フリーセル存在するか否か
+exist_freecell = 0
 ; スコア
 int_score = 500
 ; 完成したスート
@@ -197,6 +200,13 @@ repeat
 	if ( key & 128 ) {
 		;
 	}
+
+	; フリーセル存在チェック
+	exist_freecell = 0
+	for i, 0, 10, 1
+		j = -1 :do :j++ :until ( arr_card(i, j) = 0 )
+		if ( j = 0 ) :exist_freecell = 1
+	next
 
 	; クリックセル移動
 	if ( key & 256 ) {
@@ -280,7 +290,7 @@ repeat
 		} else {
 			; ステータスバーみたいな領域
 			
-			if ( int_mousex < (g_screen_x / 2)) {
+			if ( int_mousex < (g_screen_x / 3)) {
 				; 戻る
 				a = back_pop()
 				if ( a >= 0 ) {
@@ -300,33 +310,29 @@ repeat
 					wend
 					arr_turnup(int_move_x) = int_turnup
 	
-					int_move_x = -1
-					int_move_y = -1
 					int_score-- :if ( int_score < 0 ) :int_score = 0
 				}
 			} else {
-				; カード配布
-				if ( int_spider = 5 ) :break
-				for i, 0, 10, 1
-					j = -1 :do :j++ :until ( arr_card(i, j) = 0 )
-					if ( j = 0 ) :int_err_freecell = 50
-				next
-				if ( int_err_freecell = 0 ) {
-					for i, 0, 10, 1
-						j = -1 :do :j++ :until ( arr_card(i, j) = 0 )
-						arr_card(i, j) = arr_standby( int_spider, i )
-		
-						; 完成チェック
-						gosub *sub_chk_complete
-		
-					next
-					int_move_x = -1
-					int_move_y = -1
-					int_spider++
-					; 戻るの初期化
-					back_init
+				if ( ( int_mousex >= (2 * g_screen_x / 3)) ) {
+					; カード配布
+					if ( int_spider = 5 ) :break
+					if ( exist_freecell = 0 ) {
+						for i, 0, 10, 1
+							j = -1 :do :j++ :until ( arr_card(i, j) = 0 )
+							arr_card(i, j) = arr_standby( int_spider, i )
+			
+							; 完成チェック
+							gosub *sub_chk_complete
+			
+						next
+						int_spider++
+						; 戻るの初期化
+						back_init
+					}
 				}
 			}
+			int_move_x = -1
+			int_move_y = -1
 		}
 	}
 
@@ -401,15 +407,20 @@ repeat
 	color 0, 0, 0
 
 	gmode 5, , , 153
+	; スコア
+	pos 0, int_screen_y - g_font_y
+	fprint "Score:", 2
+	pos ((10 - log10(int_score)) * g_font_x), int_screen_y - g_font_y
+	fprint "" + int_score, 2
 	; 残り場数
-	for i, 4, -1, -1
-		pos g_screen_x - ( 2 * g_font_x ), int_screen_y - ( g_font_y * ( i+1 ) )
-		if ( i < int_spider ) :fprint "｢" :else :fprint "｡"
+	for i, 0, 5, 1
+		pos g_screen_x - ( 2 * g_font_x ), int_screen_y - ( g_font_y * ( 5-i ) )
+		if ( i < int_spider ) :fprint "ｪ", 1 :else :fprint "ｩ", 1
 	next
 	; 完成したスートの表示
 	for i, 0, 8, 1
 		pos g_screen_x - ( 4 * g_font_x ), int_screen_y - ( g_font_y * ( i+1 ) )
-		fprint arr_finished(i)
+		fprint arr_finished(i), 1
 	next
 	gmode 0
 
@@ -475,49 +486,38 @@ repeat
 		suit_border int_x + int_locate_x, int_y + int_locate_y, int_x_plus, int_y_plus, 255, 0, 0
 	}
 
-	;hover
-	/*
-	i = int( 1.0 * (int_mousex - int_locate_x ) / float_zoom / g_font_suit_x )
-	j = int( 1.0 * (int_mousey - int_locate_y ) / float_zoom / g_font_suit_y )
-	if ( 0 <= i ) & ( i < 10 ) & ( 0 <= j ) & ( j < 104 ) {
-		if ( arr_turnup(i) < j ) & ( arr_card(i,j) > 0 ) {
-			int_x = int((1.0 * i * g_font_suit_x - g_font_suit_x/4) * float_zoom)
-			int_y = int((1.0 * j * g_font_suit_y - g_font_suit_y/4) * float_zoom)
-
-			int_suit = getsuit( arr_card(i, j), int_difficulty )
-			int_number = getnumber( arr_card(i, j) )
-
-			pos int_x + int_locate_x, int_y + int_locate_y
-			f = 1.5*float_zoom
-			suitprint int_suit, int_number, f
-
-			int_x_plus = int((1.0 * g_font_suit_x + g_font_suit_x/2) * float_zoom)
-			int_y_plus = int((1.0 * g_font_suit_y + g_font_suit_y/2) * float_zoom)
-			suit_border int_x + int_locate_x, int_y + int_locate_y, int_x_plus, int_y_plus, 255, 0, 0
-		}
-	}*/
-
 	; トレースビューの表示
 	if ( global_trace_row > 0 ) {
 		color 255, 255, 204
 		boxf 0, int_screen_y, g_screen_x, g_screen_y
 		for i, 0, global_trace_row, 1
 			pos 0, g_screen_y - ((1+global_trace_row-i)*g_font_y)
-			fprint arr_strtrace(i)
+			fprint arr_strtrace(i), 1
 		next
 	}
 
+	; ステータスバーの表示
 	color 255, 255, 255
 	boxf 0, g_screen_y - g_font_y, g_screen_x, g_screen_y
+
+	color 0, 0, 0
+	line   g_screen_x/3, g_screen_y - g_font_y,   g_screen_x/3, g_screen_y
+	line 2*g_screen_x/3, g_screen_y - g_font_y, 2*g_screen_x/3, g_screen_y
+
 	pos 0, g_screen_y - g_font_y
-	if ( int_err_freecell > 0 ) {
-		fprint "Freecell Exists!"
-		int_err_freecell--
+	if ( back_length() > 0 ) :fprint "  Undo", 1
+
+	pos g_screen_x/2 - ( 2 * g_font_x ), g_screen_y - g_font_y
+	fprint "Hint", 1
+
+	if ( int_spider < 5 ) {
+		if ( exist_freecell = 0 ) {
+			pos g_screen_x - ( 6 * g_font_x ), g_screen_y - g_font_y
+			fprint "Deal", 1
+		}
 	} else {
-		pos 0, g_screen_y - g_font_y
-		fprint "Score: " + int_score
-		pos g_screen_x - ( 5 * g_font_x ), g_screen_y - g_font_y
-		if ( int_spider < 5 ) :fprint "Deal" :else :fprint "Lose"
+		pos g_screen_x - ( 7 * g_font_x ), g_screen_y - g_font_y
+		fprint "GiveUp", 1
 	}
 	color 0, 0, 0
 	line 0, g_screen_y - g_font_y, g_screen_x, g_screen_y - g_font_y
