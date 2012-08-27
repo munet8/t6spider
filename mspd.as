@@ -96,7 +96,7 @@
 #global
 
 #module
-#defcfunc getsuit int _c, int _d
+#defcfunc get_suit int _c, int _d
 	; スートを取得
 	; _c カード情報
 	; _d 難易度
@@ -106,7 +106,7 @@
 #global
 
 #module
-#defcfunc getnumber int _c
+#defcfunc get_number int _c
 	; 数字を取得
 	; _c カード情報
 	ret = _c & 15
@@ -126,8 +126,8 @@
 	if ( _j < 1 ) :return 0
 	if ( ( _j - 1 ) <= _t ) :return 0
 
-	card_before  = getsuit( _a(_i, _j-1), _d) * 16 + getnumber( _a(_i, _j-1))
- 	card_current = getsuit( _a(_i,   _j), _d) * 16 + getnumber( _a(_i,   _j))
+	card_before  = get_suit( _a(_i, _j-1), _d) * 16 + get_number( _a(_i, _j-1))
+ 	card_current = get_suit( _a(_i,   _j), _d) * 16 + get_number( _a(_i,   _j))
 
 	if (( card_before - 1 ) = card_current ) {
 		ret = card_before & 15
@@ -151,6 +151,7 @@
 
 #module
 #defcfunc get_rows array _a, int _i
+	; 場の長さを取得
 	for j, 0, 104, 1
 		if ( _a(_i, j) = 0 ) :_break
 	next
@@ -171,7 +172,7 @@
 	if ( j < 13 ) :return 0
 	j--
 
-	if ( getnumber( _a(_i, j) ) = 1 ) {
+	if ( get_number( _a(_i, j) ) = 1 ) {
 		for k, j, 0, -1
 			ans = is_right_order( _a, _i, k, _t, _d )
 			if ( ans = 0 ) :_break

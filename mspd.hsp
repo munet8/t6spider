@@ -122,10 +122,11 @@ loop
 ;            a >> 4 -> ƒX[ƒg (1` 8)
 
 ; ”z—ñ‚Ì‰Šú‰»
-dim arr_card, 10, 104
-dim arr_standby, 5, 10
-dim arr_turnup, 10
-dim arr_turnup_found, 10
+dim arr_card, 10, 104    ; èD
+dim arr_standby, 5, 10   ; Ï‚Ü‚ê‚½ƒJ[ƒh
+dim arr_turnup, 10       ; ‚Ç‚±‚Ü‚ÅŠJ‚¯‚Ä‚¢‚é‚©
+dim arr_turnup_found, 10 ; ‚Ç‚±‚Ü‚Å’²‚×‚½‚©
+dim arr_hint, 10, 10     ; ƒqƒ“ƒgŠi”[”z—ñ
 
 ; ƒJ[ƒh‚ğ”z•z‚·‚é
 for i, 0, 104, 1
@@ -171,6 +172,11 @@ int_score = 500
 sdim arr_finished, 4, 8
 ; –ß‚é‚Ì‰Šú‰»
 back_init
+; ƒtƒŒ[ƒ€
+int_frame = 0
+
+; ‰Šúƒqƒ“ƒg‚Ìì¬
+gosub *sub_make_hint
 
 ; ƒgƒŒ[ƒXƒƒO
 if ( global_trace_row > 0 ) {
@@ -250,6 +256,9 @@ repeat
 										if (arr_turnup_found(int_move_x) >= arr_turnup(int_move_x)) : arr_turnup_found(int_move_x) = arr_turnup(int_move_x)
 									}
 								}
+
+								; ƒqƒ“ƒg‚ÌÄì¬
+								gosub *sub_make_hint
 							}
 						}
 						int_move_x = -1
@@ -311,7 +320,12 @@ repeat
 					arr_turnup(int_move_x) = int_turnup
 	
 					int_score-- :if ( int_score < 0 ) :int_score = 0
+
+					; ƒqƒ“ƒg‚ÌÄì¬
+					gosub *sub_make_hint
 				}
+				int_move_x = -1
+				int_move_y = -1
 			} else {
 				if ( ( int_mousex >= (2 * g_screen_x / 3)) ) {
 					; ƒJ[ƒh”z•z
@@ -328,7 +342,27 @@ repeat
 						int_spider++
 						; –ß‚é‚Ì‰Šú‰»
 						back_init
+						; ƒqƒ“ƒg‚ÌÄì¬
+						gosub *sub_make_hint
 					}
+				} else {
+					; ƒqƒ“ƒg
+					int_hint_from_x = -1
+					int_hint_from_y = -1
+					int_hint_to_x   = -1
+					for i, int_hint_p, 100, 1
+						j = i / 10 :k = i \ 10
+						if ( arr_hint( j, k ) > 0 ) {
+							str_trace_put = "Hint (" + j + ", " + arr_hint(j, k) + ")->" + k
+							gosub *sub_trace_put
+							int_hint_from_x = j
+							int_hint_from_y = arr_hint(j, k) - 1
+							int_hint_to_x   = k
+							int_hint_p = i + 1
+							_break
+						}
+					next
+					if ( int_hint_from_x = -1 ) :int_hint_p = 0
 				}
 			}
 			int_move_x = -1
@@ -386,7 +420,7 @@ repeat
 	; ‰æ–Ê‘JˆÚ§Œä
 	if ( int_max_y = 0 ) :break
 
-	; ‹^—”wŒi
+	; ‹^—”wŒiEŠO
 	color 0, 51, 0
 	if ( global_trace_row > 0 ) {
 		a = 0
@@ -397,6 +431,7 @@ repeat
 		if (( a\13 ) > 0 ) :color 255,0,0
 	}
 
+	; ‹^—”wŒiE’†
 	boxf 0, 0, g_screen_x, g_screen_y
 	a = int_locate_x
 	b = int(10.0 * g_font_suit_x * float_zoom) + int_locate_x
@@ -430,8 +465,8 @@ repeat
 		do
 			; î•ñæ“¾
 			if ( arr_card(i, j) > 0 ) {
-				int_suit = getsuit( arr_card(i, j), int_difficulty )
-				int_number = getnumber( arr_card(i, j) )
+				int_suit = get_suit( arr_card(i, j), int_difficulty )
+				int_number = get_number( arr_card(i, j) )
 
 				; ŠG‚ğ‘‚­
 				int_x = int(1.0 * i * g_font_suit_x * float_zoom)
@@ -442,6 +477,32 @@ repeat
 				if ( arr_turnup(i) < j ) { ; ƒJ[ƒh•`‰æ
 					pos int_x + int_locate_x, int_y + int_locate_y
 					suitprint int_suit, int_number, float_zoom
+
+					; ƒqƒ“ƒg‚Ì•\¦
+					if ( i = int_hint_from_x ) {
+						if ( j >= int_hint_from_y ) {
+							gmode 3, , , 85
+							pos int_x + int_locate_x, int_y + int_locate_y
+							if (( int_frame / 20 ) \ 2 ) {
+								suitprint 2, 14, float_zoom
+							} else {
+								suitprint 3, 14, float_zoom
+							}
+							gmode 0
+						}
+					}
+					if ( i = int_hint_to_x ) {
+						if ( j = ( get_rows( arr_card, i ) - 1 )) {
+							gmode 3, , , 85
+							pos int_x + int_locate_x, int_y + int_locate_y
+							if (( int_frame / 20 ) \ 2 ) {
+								suitprint 3, 14, float_zoom
+							} else {
+								;suitprint 3, 14, float_zoom
+							}
+							gmode 0
+						}
+					}
 				} else {
 					if ( arr_turnup_found(i) < j ) { ; –\˜IÏ‚İ
 						; F‚ğ•Ï‚¦‚é‚Æ‚©H
@@ -471,8 +532,8 @@ repeat
 		j = int_move_y
 		int_x = int(1.0 * i * g_font_suit_x * float_zoom)
 		int_y = int(1.0 * j * g_font_suit_y * float_zoom)
-		int_suit = getsuit( arr_card(i, j), int_difficulty )
-		int_number = getnumber( arr_card(i, j) )
+		int_suit = get_suit( arr_card(i, j), int_difficulty )
+		int_number = get_number( arr_card(i, j) )
 
 		int_x = int((1.0 * i * g_font_suit_x - g_font_suit_x/8) * float_zoom)
 		int_y = int((1.0 * j * g_font_suit_y - g_font_suit_y/8) * float_zoom)
@@ -524,6 +585,7 @@ repeat
 
 	redraw 1
 	await 32
+	int_frame++ :if ( int_frame > 999 ) :int_frame = 0
 
 loop
 
@@ -542,7 +604,7 @@ end
 *sub_chk_complete
 	if ( chk_complete( arr_card, i, arr_turnup(i), int_difficulty ) = 1 ) {
 		k = get_rows( arr_card, i )
-		n = getsuit( arr_card( i, k-1 ), int_difficulty ) - 1
+		n = get_suit( arr_card( i, k-1 ), int_difficulty ) - 1
 		for m, k-1, k-14, -1
 			arr_card(i, m) = 0
 		next
@@ -571,4 +633,30 @@ end
 		next
 		arr_strtrace(global_trace_row - 1) = str_trace_put
 	}
+	return
+
+*sub_make_hint
+	dim arr_hint, 10, 10 ; ƒqƒ“ƒgŠi”[”z—ñ
+	int_hint_p = 0       ; ƒqƒ“ƒgƒ|ƒCƒ“ƒ^
+	int_hint_from_x = -1 ; ƒqƒ“ƒg•\¦—ÌˆæEŒ³x
+	int_hint_from_y = -1 ; ƒqƒ“ƒg•\¦—ÌˆæEŒ³y
+	int_hint_to_x   = -1 ; ƒqƒ“ƒg•\¦—ÌˆæEæx
+
+	for i, 0, 10, 1
+		for j, 0, 10, 1
+			if ( i != j ) {
+				k = get_rows(arr_card, i) - 1
+				l = get_rows(arr_card, j) - 1
+				for m, k, -1, -1
+					if ( l < 0 ) : _break
+					if ( (get_number(arr_card(i, m)) + 1) = get_number(arr_card(j, l)) ) {
+						if ( m = 0 ) | ( is_right_order(arr_card, i, m, arr_turnup(i), int_difficulty) = 0 ) {
+							arr_hint(i, j) = m + 1: _break
+						}
+					}
+					if ( is_right_order(arr_card, i, m, arr_turnup(i), int_difficulty) = 0 ) :_break
+				next
+			}
+		next
+	next
 	return
