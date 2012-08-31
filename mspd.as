@@ -10,6 +10,9 @@
 #const global g_screen_x 320
 #const global g_screen_y 480
 
+; 3π/4
+#const global g_3pi4 3*M_PI/4
+
 ; トレースビュー行数
 ; リリース時は 0
 ;#const global global_trace_row 4
@@ -71,15 +74,30 @@
 	index = 0
 	return
 #deffunc back_push int _i, int _j, int _x, int _y, int _t
-	stack(index, 0) = _i
-	stack(index, 1) = _j
-	stack(index, 2) = _x
-	stack(index, 3) = _y
-	stack(index, 4) = _t
-	index++
+	if ( index = 1024 ) {
+		for n, 0, 1023, 1
+			stack(n, 0) = stack(n+1, 0)
+			stack(n, 1) = stack(n+1, 1)
+			stack(n, 2) = stack(n+1, 2)
+			stack(n, 3) = stack(n+1, 3)
+			stack(n, 4) = stack(n+1, 4)
+		next
+		stack(index, 0) = _i
+		stack(index, 1) = _j
+		stack(index, 2) = _x
+		stack(index, 3) = _y
+		stack(index, 4) = _t
+	} else {
+		stack(index, 0) = _i
+		stack(index, 1) = _j
+		stack(index, 2) = _x
+		stack(index, 3) = _y
+		stack(index, 4) = _t
+		index++
+	}
 	return
 #defcfunc back_pop
-	if ( index > 0 ) {
+	if ( 0 < index ) {
 		index--
 		i = stack(index, 0) &  15
 		j = stack(index, 1) & 127
