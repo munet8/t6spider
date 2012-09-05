@@ -37,10 +37,10 @@ arr_strdif(2) = "Lv3 ｣､x3,･x2"
 arr_strdif(3) = "Lv4 ｣､･ｦx2"
 
 sdim arr_strsuit, 4, 4
-arr_strsuit(0) = "ｫ"
-arr_strsuit(1) = "ｬ"
-arr_strsuit(2) = "ｭ"
-arr_strsuit(3) = "ｮ"
+arr_strsuit(0) = "ｯ"
+arr_strsuit(1) = "ｰ"
+arr_strsuit(2) = "ｱ"
+arr_strsuit(3) = "ｲ"
 
 ; 拡大率の設定
 float_zoom = 0.6
@@ -117,6 +117,8 @@ repeat
 
 	pos 0, g_screen_y - g_font_y
 	fprint "2012(C) m-ushi", 1
+	color 0, 0, 0
+	line 0, g_screen_y - g_font_y, g_screen_x, g_screen_y - g_font_y
 
 	redraw 1
 	await 32
@@ -166,8 +168,6 @@ int_score = 500
 sdim arr_finished, 4, 8
 ; 戻るの初期化
 back_init
-; フレーム
-int_frame = 0
 ; カードを動かしたか（再シャッフル可能か？）
 int_ismoved = 0
 
@@ -294,97 +294,111 @@ repeat
 			}
 		} else {
 			; ステータスバーみたいな領域
-			if ( int_mousex < (g_screen_x / 3)) {
-				if ( int_ismoved ) {
-					; 戻る
-					a = back_pop()
-					if ( a >= 0 ) {
-						i = a >> 27
-						j = ( a >> 20 ) & 127
-						int_move_x = ( a >> 16 ) & 15
-						int_move_y = ( a >> 8 ) & 255
-						int_turnup = a & 255
-						if ( int_turnup > 104 ) { int_turnup = -1 }
-	
-						str_trace_put = "Back (" + int_move_x + "," + int_move_y + ")<-(" + i + "," + j + ") @ " + int_turnup
-						gosub *sub_trace_put
-						while ( arr_card(i, j) > 0 )
-							arr_card(int_move_x, int_move_y) = arr_card(i, j)
-							arr_card(i, j) = 0
-							int_move_y++ :j++
-						wend
-						arr_turnup(int_move_x) = int_turnup
+			if ( int_move_x < 0 ) {
+				if ( int_mousex < (g_screen_x / 3)) {
+					if ( int_ismoved ) {
+						; 戻る
+						a = back_pop()
+						if ( a >= 0 ) {
+							i = a >> 27
+							j = ( a >> 20 ) & 127
+							int_move_x = ( a >> 16 ) & 15
+							int_move_y = ( a >> 8 ) & 255
+							int_turnup = a & 255
+							if ( int_turnup > 104 ) { int_turnup = -1 }
 		
-						int_score-- :if ( int_score < 0 ) :int_score = 0
-	
-						; ヒントの再作成
-						gosub *sub_make_hint
-					}
-				} else {
-					; カードの再配布
-					gosub *sub_shuffle
-					gosub *sub_make_hint
-					gosub *sub_init_click_info
-				}
-				gosub *sub_init_click_info
-			} else {
-				if ( ( int_mousex >= (2 * g_screen_x / 3)) ) {
-					; カード配布
-					if ( int_spider = 5 ) :break
-					if ( exist_freecell = 0 ) {
-						for i, 0, 10, 1
-							j = -1 :do :j++ :until ( arr_card(i, j) = 0 )
-							arr_card(i, j) = arr_standby( int_spider, i )
+							str_trace_put = "Back (" + int_move_x + "," + int_move_y + ")<-(" + i + "," + j + ") @ " + int_turnup
+							gosub *sub_trace_put
+							while ( arr_card(i, j) > 0 )
+								arr_card(int_move_x, int_move_y) = arr_card(i, j)
+								arr_card(i, j) = 0
+								int_move_y++ :j++
+							wend
+							arr_turnup(int_move_x) = int_turnup
 			
-							; 完成チェック
-							gosub *sub_chk_complete
-			
-						next
-						int_spider++
-						int_ismoved = 1
-						; 戻るの初期化
-						back_init
-						; ヒントの再作成
+							int_score-- :if ( int_score < 0 ) :int_score = 0
+		
+							; ヒントの再作成
+							gosub *sub_make_hint
+						}
+					} else {
+						; カードの再配布
+						gosub *sub_shuffle
 						gosub *sub_make_hint
 						gosub *sub_init_click_info
 					}
-				} else {
-					; ヒント
 					gosub *sub_init_click_info
-					if ( int_hint_length > 0 ) {
-						i = int_hint_p
-						while
-							j = i / 10 :k = i \ 10
-							if ( arr_hint( j, k ) > 0 ) {
-								str_trace_put = "Hint (" + j + ", " + arr_hint(j, k) + ")->" + k
-								gosub *sub_trace_put
-								int_hint_from_x = j
-								int_hint_from_y = arr_hint(j, k) - 1
-								int_hint_to_x   = k
-								int_hint_to_y   = get_rows( arr_card, int_hint_to_x ) - 1
-								int_hint_p = i + 1
-								_break
-							}
-							i++ :if ( i > 99 ) :i = 0
-						wend
+				} else {
+					if ( ( int_mousex >= (2 * g_screen_x / 3)) ) {
+						; カード配布
+						if ( int_spider = 5 ) :break
+						if ( exist_freecell = 0 ) {
+							for i, 0, 10, 1
+								j = -1 :do :j++ :until ( arr_card(i, j) = 0 )
+								arr_card(i, j) = arr_standby( int_spider, i )
+	
+								; 完成チェック
+								gosub *sub_chk_complete
+	
+							next
+							int_spider++
+							int_ismoved = 1
+							; 戻るの初期化
+							back_init
+							; ヒントの再作成
+							gosub *sub_make_hint
+							gosub *sub_init_click_info
+						}
+					} else {
+						; ヒント
+						gosub *sub_init_click_info
+						if ( int_hint_length > 0 ) {
+							i = int_hint_p
+							while
+								j = i / 10 :k = i \ 10
+								if ( arr_hint( j, k ) > 0 ) {
+									str_trace_put = "Hint (" + j + ", " + arr_hint(j, k) + ")->" + k
+									gosub *sub_trace_put
+									int_hint_from_x = j
+									int_hint_from_y = arr_hint(j, k) - 1
+									int_hint_to_x   = k
+									int_hint_to_y   = get_rows( arr_card, int_hint_to_x ) - 1
+									int_hint_p = i + 1
+									_break
+								}
+								i++ :if ( i > 99 ) :i = 0
+							wend
+						}
 					}
 				}
 			}
 		}
 	}
 
-	; ズーム、左右移動
+	; ズーム
 	getkey gky, 2
 	if ( gky = 1 ) {
-		if (( int_mousey_before - int_mousey ) > 1 ) {
-			float_zoom -= 0.05
-			if float_zoom < 0.5 :float_zoom = 0.5
+		a = int_mousey_before - int_mousey
+		if ( a > 3 ) {
+			float_zoom -= double(a)/100.0
+			if float_zoom < 0.5 {
+				float_zoom = 0.5
+			} else {
+				int_locate_x += g_screen_x/80
+				int_locate_y += g_screen_y/80
+			}
 		}
-		if (( int_mousey_before - int_mousey ) < -1 ) {
-			float_zoom += 0.05
-			if float_zoom > 2.0 :float_zoom = 2.0
+		if ( a < -3 ) {
+			float_zoom -= double(a)/100.0
+			if float_zoom > 2.0 {
+				float_zoom = 2.0
+			} else {
+				int_locate_x -= g_screen_x/80
+				int_locate_y -= g_screen_y/80
+			}
 		}
  	}
+ 	; 左右移動
 	getkey gky, 1
  	if ( gky = 1 ) {
 		a = int_mousex_before - int_mousex
@@ -394,6 +408,24 @@ repeat
 		a = int_mousey_before - int_mousey
 		if ( abs(a) > 3 ) {
 			int_locate_y -= a
+		}
+		if ( int_mousey >= ( g_screen_y - g_font_y )) & ( int_move_x >= 0 ) {
+			; カードをつかんでいるときの移動
+			i = int_mousex / (g_screen_x / 4)
+			switch i
+			case 0
+				int_locate_x += 10
+				swbreak
+			case 1
+				int_locate_y += 10
+				swbreak
+			case 2
+				int_locate_y -= 10
+				swbreak
+			case 3
+				int_locate_x -= 10
+				swbreak
+			swend
 		}
 	}
 
@@ -453,7 +485,7 @@ repeat
 	; 残り場数
 	for i, 0, 5, 1
 		pos g_screen_x - ( 2 * g_font_x ), int_screen_y - ( g_font_y * ( 5-i ) )
-		if ( i < int_spider ) :fprint "ｪ", 1 :else :fprint "ｩ", 1
+		if ( i < int_spider ) :fprint "ｮ", 1 :else :fprint "ｭ", 1
 	next
 	; 完成したスートの表示
 	for i, 0, 8, 1
@@ -563,40 +595,56 @@ repeat
 	color 255, 255, 255
 	boxf 0, g_screen_y - g_font_y, g_screen_x, g_screen_y
 
-	color 0, 0, 0
-	line   g_screen_x/3, g_screen_y - g_font_y,   g_screen_x/3, g_screen_y
-	line 2*g_screen_x/3, g_screen_y - g_font_y, 2*g_screen_x/3, g_screen_y
+	if ( int_move_x < 0 ) {
+		; カードをつかんでいないとき
+		color 0, 0, 0
+		line   g_screen_x/3, g_screen_y - g_font_y,   g_screen_x/3, g_screen_y
+		line 2*g_screen_x/3, g_screen_y - g_font_y, 2*g_screen_x/3, g_screen_y
 
-	if ( int_ismoved = 0 ) {
-		pos g_screen_x/6 - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
-		fprint "Shuffle", 1
-	} else {
-		if ( back_length() > 0 ) {
-			pos g_screen_x/6 - ( 2 * g_font_x ), g_screen_y - g_font_y
-			fprint "Undo", 1
+		if ( int_ismoved = 0 ) {
+			pos g_screen_x/6 - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
+			fprint "Shuffle", 1
+		} else {
+			if ( back_length() > 0 ) {
+				pos g_screen_x/6 - ( 2 * g_font_x ), g_screen_y - g_font_y
+				fprint "Undo", 1
+			}
 		}
-	}
 
-	if ( int_hint_length > 0 ) {
-		pos g_screen_x/2 - ( 2 * g_font_x ), g_screen_y - g_font_y
-		fprint "Hint", 1
-	}
+		if ( int_hint_length > 0 ) {
+			pos g_screen_x/2 - ( 2 * g_font_x ), g_screen_y - g_font_y
+			fprint "Hint", 1
+		}
 
-	if ( int_spider < 5 ) {
-		if ( exist_freecell = 0 ) {
-			pos 5*g_screen_x/6 - ( 2 * g_font_x ), g_screen_y - g_font_y
-			fprint "Deal", 1
+		if ( int_spider < 5 ) {
+			if ( exist_freecell = 0 ) {
+				pos 5*g_screen_x/6 - ( 2 * g_font_x ), g_screen_y - g_font_y
+				fprint "Deal", 1
+			}
+		} else {
+			pos 5*g_screen_x/6 - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
+			fprint "Give up", 1
 		}
 	} else {
-		pos 5*g_screen_x/6 - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
-		fprint "Give up", 1
+		; カードをつかんでいないとき
+		color 0, 0, 0
+		for i, 1, 4, 1
+			line i*g_screen_x/4, g_screen_y - g_font_y, i*g_screen_x/4, g_screen_y
+		next
+
+		for i, 0, 4, 1
+			pos (2*i+1)*g_screen_x/8 - g_font_x, g_screen_y - g_font_y
+			c=""
+			poke c, 0, 167+i
+			fprint c, 1
+		next
 	}
+
 	color 0, 0, 0
 	line 0, g_screen_y - g_font_y, g_screen_x, g_screen_y - g_font_y
 
 	redraw 1
 	await 32
-	int_frame++ :if ( int_frame > 999 ) :int_frame = 0
 
 loop
 
