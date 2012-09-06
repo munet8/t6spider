@@ -1,3 +1,13 @@
+; コンパイルオプション
+#packopt name "mspd.exe"
+#packopt type 0
+#packopt xsize 320
+#packopt ysize 480
+#pack "fon_cha2.png"
+#pack "fon_chab.png"
+#pack "fon_char.png"
+#pack "fon_suit.png"
+
 ; フォントサイズ
 #const global g_font_x 12
 #const global g_font_y 24

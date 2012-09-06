@@ -1,5 +1,4 @@
 #include "hsp3dish.as"
-
 #include "mspd.as"
 
 title "munet spider"
