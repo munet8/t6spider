@@ -1,13 +1,14 @@
+;-------------------------------------------------------------------------------
 ; コンパイルオプション
-#packopt name "mspd.exe"
+#packopt name "muspider.exe"
 #packopt type 0
 #packopt xsize 320
 #packopt ysize 480
+#pack "fon_cha1.png"
 #pack "fon_cha2.png"
-#pack "fon_chab.png"
-#pack "fon_char.png"
 #pack "fon_suit.png"
 
+;-------------------------------------------------------------------------------
 ; フォントサイズ
 #const global g_font_x 12
 #const global g_font_y 24
@@ -59,9 +60,11 @@
 			continue
 		} else {
 			if ( a1 & 128 ) {
-				celput _charset+2 , a1 - 160
+				if ( _charset = 2 ) :a1 += 12
+				celput 2 , a1 - 160
 			} else {
-				celput _charset , a1 - 32
+				if ( _charset = 2 ) :a1 += 96
+				celput 1 , a1 - 32
 			}
 		}
 	loop
@@ -74,7 +77,7 @@
 	; _i suit
 	; _j number
 	x = (_j-1)*4 + (_i-1)
-	celput 4, x, _f, _f
+	celput 3, x, _f, _f
 	return
 #global
 

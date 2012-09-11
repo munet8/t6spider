@@ -11,17 +11,19 @@ title "munet spider"
 
 *first
 
-celload "fon_char.png", 1                ; 文字画像のロード
+getreq int_os, SYSREQ_PLATFORM           ; OS識別
+flag_is_ios     = (int_os = 1)
+flag_is_android = (int_os = 2)
+flag_is_windows = (int_os = 0)
+
+celload "fon_cha1.png", 1                ; 文字画像のロード（半角）
 celdiv 1, g_font_x, g_font_y, 0, 0       ; 文字画像の分割
 
-celload "fon_chab.png", 2                ; 文字画像のロード
-celdiv 2, g_font_x, g_font_y, 0, 0       ; 文字画像の分割
+celload "fon_cha2.png", 2                ; 文字画像のロード（全角）
+celdiv 2, 2*g_font_x, g_font_y, 0, 0     ; 文字画像の分割
 
-celload "fon_cha2.png", 3                ; 文字画像のロード
-celdiv 3, g_font_y, g_font_y, 0, 0       ; 文字画像の分割
-
-celload "fon_suit.png", 4                ; カード画像のロード
-celdiv 4, g_font_suit_x, g_font_suit_y, 0, 0 ; 同じく分割
+celload "fon_suit.png", 3                ; カード画像のロード
+celdiv 3, g_font_suit_x, g_font_suit_y, 0, 0 ; 同じく分割
 
 int_mousex = 0
 int_mousey = 0
@@ -36,10 +38,10 @@ arr_strdif(2) = "Lv3 ｣､x3,･x2"
 arr_strdif(3) = "Lv4 ｣､･ｦx2"
 
 sdim arr_strsuit, 4, 4
-arr_strsuit(0) = "ｯ"
-arr_strsuit(1) = "ｰ"
-arr_strsuit(2) = "ｱ"
-arr_strsuit(3) = "ｲ"
+arr_strsuit(0) = "｣"
+arr_strsuit(1) = "､"
+arr_strsuit(2) = "･"
+arr_strsuit(3) = "ｦ"
 
 ; 拡大率の設定
 float_zoom = 0.6
@@ -83,7 +85,7 @@ repeat
 		if ( int_difficulty > 0 ) :break
 	}
 
-	pos 0, 0
+	pos g_font_x, g_font_y/2
 	fprint str_titl1, 1
 
 	; 難易度選択
@@ -107,11 +109,16 @@ repeat
 		fprint "Score:", 1
 		pos ((10 - log10(int_score)) * g_font_x), int_screen_y - g_font_y
 		fprint "" + int_score, 1
+		; 残り場数
+		for i, 0, 5, 1
+			pos g_screen_x - ( 2 * g_font_x ), int_screen_y - ( g_font_y * ( 5-i ) )
+			if ( i < int_spider ) :fprint "｢", 1 :else :fprint "｡", 1
+		next
 		; 完成したスートの表示
-		;for i, 0, 8, 1
-		;	pos g_screen_x - ( 4 * g_font_x ), int_screen_y - ( g_font_y * ( i+1 ) )
-		;	fprint arr_finished(i), 1
-		;next
+		for i, 0, 8, 1
+			pos g_screen_x - ( 4 * g_font_x ), int_screen_y - ( g_font_y * ( i+1 ) )
+			fprint arr_finished(i), 1
+		next
 	}
 
 	pos 0, g_screen_y - g_font_y
@@ -354,7 +361,7 @@ repeat
 						if ( int_hint_length > 0 ) {
 							i = int_hint_p
 							while
-								j = i / 10 :k = i \ 10
+								j = ( i / 10 ) \ 10 :k = i \ 10
 								if ( arr_hint( j, k ) > 0 ) {
 									str_trace_put = "Hint (" + j + ", " + arr_hint(j, k) + ")->" + k
 									gosub *sub_trace_put
@@ -365,7 +372,7 @@ repeat
 									int_hint_p = i + 1
 									_break
 								}
-								i++ :if ( i > 99 ) :i = 0
+								i++ :if ( i > 199 ) :i = 0
 							wend
 						}
 					}
@@ -484,12 +491,12 @@ repeat
 	; 残り場数
 	for i, 0, 5, 1
 		pos g_screen_x - ( 2 * g_font_x ), int_screen_y - ( g_font_y * ( 5-i ) )
-		if ( i < int_spider ) :fprint "ｮ", 1 :else :fprint "ｭ", 1
+		if ( i < int_spider ) :fprint "｢", 2 :else :fprint "｡", 2
 	next
 	; 完成したスートの表示
 	for i, 0, 8, 1
 		pos g_screen_x - ( 4 * g_font_x ), int_screen_y - ( g_font_y * ( i+1 ) )
-		fprint arr_finished(i), 1
+		fprint arr_finished(i), 2
 	next
 	gmode 0
 
