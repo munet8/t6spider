@@ -64,6 +64,7 @@ int_score = -1
 repeat
 
 	redraw 0
+	gfilter 1
 
 	stick key, 15
 	;if ( key & 128 ) :end
@@ -72,7 +73,9 @@ repeat
 		int_mousex = mousex
 		int_mousey = mousey
 		int_difficulty = 0
-		if (((2+g_font_x) < int_mousex ) & ( int_mousex < (g_screen_x - (5*g_font_x)))) {
+
+		; 難易度が選ばれているならゲーム開始
+		if (((2*g_font_x) < int_mousex ) & ( int_mousex < (g_screen_x - (5*g_font_x)))) {
 			for n, 0, 4, 1
 				j = ( 4*n + 2 ) * g_font_y
 				k = ( 4*n + 5 ) * g_font_y
@@ -83,12 +86,22 @@ repeat
 			next
 		}
 		if ( int_difficulty > 0 ) :break
+
+		; 終了させる iOSを除く
+		if (((2*g_screen_x/3) < int_mousex ) & (( g_screen_y - g_font_y ) < int_mousey ) & ( flag_is_ios ^ 1 )) {
+			end 0
+		}
 	}
 
-	pos g_font_x, g_font_y/2
-	fprint str_titl1, 1
+	color 17, 51, 17
+	boxf 0, 0, g_screen_x, g_screen_y
 
-	; 難易度選択
+	gmode 5, 0, 0, 204
+	pos g_font_x, g_font_y/2
+	fprint str_titl1, 2
+	gmode 0
+
+	; 難易度選択の表示
 	for n, 0, 4, 1
 		i = 2 * g_font_x
 		j = ( 4*n + 2 ) * g_font_y
@@ -103,28 +116,42 @@ repeat
 		fprint arr_strdif(n), 1
 	next
 
-	; スコア
+	; スコアの表示（クリア・敗北時）
 	if ( int_score >= 0 ) {
+		gmode 5, 0, 0, 153
 		pos 0, g_screen_y - ( 2 * g_font_y )
-		fprint "Score:", 1
+		fprint "Score:", 2
 		pos ((10 - log10(int_score)) * g_font_x), int_screen_y - g_font_y
-		fprint "" + int_score, 1
+		fprint "" + int_score, 2
 		; 残り場数
 		for i, 0, 5, 1
 			pos g_screen_x - ( 2 * g_font_x ), int_screen_y - ( g_font_y * ( 5-i ) )
-			if ( i < int_spider ) :fprint "｢", 1 :else :fprint "｡", 1
+			if ( i < int_spider ) :fprint "｢", 2 :else :fprint "｡", 2
 		next
 		; 完成したスートの表示
 		for i, 0, 8, 1
 			pos g_screen_x - ( 4 * g_font_x ), int_screen_y - ( g_font_y * ( i+1 ) )
-			fprint arr_finished(i), 1
+			fprint arr_finished(i), 2
 		next
 	}
 
+	; ステータスバー
+	color 85, 85, 102
+	boxf 0, g_screen_y - g_font_y, g_screen_x, g_screen_y
+	gmode 5, 0, 0, 204
+
+	color 255, 255, 255
 	pos 0, g_screen_y - g_font_y
-	fprint "2012(C) m-ushi", 1
-	color 0, 0, 0
+	fprint "2012(C) m-ushi", 2
+
+	if ( flag_is_ios^1 ) {
+		pos (5*g_screen_x/6) - (2*g_font_x), g_screen_y - g_font_y
+		fprint "Exit", 2
+		line 2*g_screen_x/3, g_screen_y - g_font_y, 2*g_screen_x/3, g_screen_y
+	}
 	line 0, g_screen_y - g_font_y, g_screen_x, g_screen_y - g_font_y
+
+	gmode 0
 
 	redraw 1
 	await 32
@@ -151,7 +178,7 @@ dim arr_card, 10, 104    ; 手札
 dim arr_standby, 5, 10   ; 積まれたカード
 dim arr_turnup, 10       ; どこまで開けているか
 dim arr_turnup_found, 10 ; どこまで調べたか
-dim arr_hint, 10, 10     ; ヒント格納配列
+dim arr_hint, 2, 10, 10  ; ヒント格納配列
 
 ; カードを配布する
 gosub *sub_shuffle
@@ -361,14 +388,15 @@ repeat
 						if ( int_hint_length > 0 ) {
 							i = int_hint_p
 							while
-								j = ( i / 10 ) \ 10 :k = i \ 10
-								if ( arr_hint( j, k ) > 0 ) {
-									str_trace_put = "Hint (" + j + ", " + arr_hint(j, k) + ")->" + k
+								j = ( i / 10 ) \ 10 :k = i \ 10 :l = i / 100
+								if ( arr_hint( l, j, k ) > 0 ) {
+									str_trace_put = "Hint (" + j + ", " + arr_hint(l, j, k) + ")->" + k
 									gosub *sub_trace_put
 									int_hint_from_x = j
-									int_hint_from_y = arr_hint(j, k) - 1
+									int_hint_from_y = arr_hint(l, j, k) - 1
 									int_hint_to_x   = k
 									int_hint_to_y   = get_rows( arr_card, int_hint_to_x ) - 1
+									int_hint_priority = l
 									int_hint_p = i + 1
 									_break
 								}
@@ -381,11 +409,12 @@ repeat
 		}
 	}
 
-	; ズーム
 	getkey gky, 2
 	if ( gky = 1 ) {
+		; ズーム
 		a = int_mousey_before - int_mousey
 		if ( a > 3 ) {
+			; 縮小
 			float_zoom -= double(a)/100.0
 			if float_zoom < 0.5 {
 				float_zoom = 0.5
@@ -395,6 +424,7 @@ repeat
 			}
 		}
 		if ( a < -3 ) {
+			; 拡大
 			float_zoom -= double(a)/100.0
 			if float_zoom > 2.0 {
 				float_zoom = 2.0
@@ -403,10 +433,18 @@ repeat
 				int_locate_y -= g_screen_y/80
 			}
 		}
+		; 回転
+		a = int_mousex_before - int_mousex
+		if ( a > 5 ) {
+			; 左回転
+		}
+		if ( a < -5 ) {
+			; 右回転
+		}
  	}
  	; 左右移動
-	getkey gky, 1
- 	if ( gky = 1 ) {
+ 	stick gky, 256
+ 	if ( gky & 256 ) {
 		a = int_mousex_before - int_mousex
 		if ( abs(a) > 3 ) {
 			int_locate_x -= a
@@ -417,22 +455,25 @@ repeat
 		}
 		if ( int_mousey >= ( g_screen_y - g_font_y )) & ( int_move_x >= 0 ) {
 			; カードをつかんでいるときの移動
+			int_scroll_weight++ :if ( int_scroll_weight > 40 ) :int_scroll_weight = 40
 			i = int_mousex / (g_screen_x / 4)
 			switch i
 			case 0
-				int_locate_x += 10
+				int_locate_x += int_scroll_weight
 				swbreak
 			case 1
-				int_locate_y += 10
+				int_locate_y += int_scroll_weight
 				swbreak
 			case 2
-				int_locate_y -= 10
+				int_locate_y -= int_scroll_weight
 				swbreak
 			case 3
-				int_locate_x -= 10
+				int_locate_x -= int_scroll_weight
 				swbreak
 			swend
 		}
+	} else {
+		int_scroll_weight = 8
 	}
 
 	; 画面位置調整
@@ -559,7 +600,7 @@ repeat
 			next
 		next
 		color 255, 0, 0
-		if ( get_suit( arr_card(int_hint_from_x, int_hint_from_y), int_difficulty ) != get_suit( arr_card(int_hint_to_x, int_hint_to_y), int_difficulty ) ) : color 170, 170, 170
+		if ( int_hint_priority = 1 ) : color 170, 170, 170
 		circle int_x - 4, int_y - 4, int_x + 4, int_y + 4, 1
 		line int_x, int_y, int_z, int_w
 		line int_z, int_w, int_z + int( 10.0 * cos(double_t) ), int_w + int( 10.0 * sin(double_t) )
@@ -598,42 +639,43 @@ repeat
 	}
 
 	; ステータスバーの表示
-	color 255, 255, 255
+	color 85, 85, 102
 	boxf 0, g_screen_y - g_font_y, g_screen_x, g_screen_y
+	gmode 5, 0, 0, 204
 
 	if ( int_move_x < 0 ) {
 		; カードをつかんでいないとき
-		color 0, 0, 0
+		color 255, 255, 255
 		line   g_screen_x/3, g_screen_y - g_font_y,   g_screen_x/3, g_screen_y
 		line 2*g_screen_x/3, g_screen_y - g_font_y, 2*g_screen_x/3, g_screen_y
 
 		if ( int_ismoved = 0 ) {
 			pos g_screen_x/6 - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
-			fprint "Shuffle", 1
+			fprint "Shuffle", 2
 		} else {
 			if ( back_length() > 0 ) {
 				pos g_screen_x/6 - ( 2 * g_font_x ), g_screen_y - g_font_y
-				fprint "Undo", 1
+				fprint "Undo", 2
 			}
 		}
 
 		if ( int_hint_length > 0 ) {
 			pos g_screen_x/2 - ( 2 * g_font_x ), g_screen_y - g_font_y
-			fprint "Hint", 1
+			fprint "Hint", 2
 		}
 
 		if ( int_spider < 5 ) {
 			if ( exist_freecell = 0 ) {
 				pos 5*g_screen_x/6 - ( 2 * g_font_x ), g_screen_y - g_font_y
-				fprint "Deal", 1
+				fprint "Deal", 2
 			}
 		} else {
 			pos 5*g_screen_x/6 - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
-			fprint "Give up", 1
+			fprint "Give up", 2
 		}
 	} else {
 		; カードをつかんでいないとき
-		color 0, 0, 0
+		color 255, 255, 255
 		for i, 1, 4, 1
 			line i*g_screen_x/4, g_screen_y - g_font_y, i*g_screen_x/4, g_screen_y
 		next
@@ -642,11 +684,11 @@ repeat
 			pos (2*i+1)*g_screen_x/8 - g_font_x, g_screen_y - g_font_y
 			c=""
 			poke c, 0, 167+i
-			fprint c, 1
+			fprint c, 2
 		next
 	}
 
-	color 0, 0, 0
+	color 255, 255, 255
 	line 0, g_screen_y - g_font_y, g_screen_x, g_screen_y - g_font_y
 
 	redraw 1
@@ -731,12 +773,13 @@ end
 
 ; ヒント配列を生成
 *sub_make_hint
-	dim arr_hint, 10, 10 ; ヒント格納配列
-	int_hint_p = 0       ; ヒントポインタ
-	int_hint_from_x = -1 ; ヒント表示領域・元x
-	int_hint_from_y = -1 ; ヒント表示領域・元y
-	int_hint_to_x   = -1 ; ヒント表示領域・先x
-	int_hint_length = 0  ; ヒントの長さ
+	dim arr_hint, 2, 10, 10 ; ヒント格納配列
+	int_hint_p = 0        ; ヒントポインタ
+	int_hint_from_x = -1  ; ヒント表示領域・元x
+	int_hint_from_y = -1  ; ヒント表示領域・元y
+	int_hint_to_x   = -1  ; ヒント表示領域・先x
+	int_hint_length = 0   ; ヒントの長さ
+	int_hint_priority = l ; 優先度・0なら同スート・1なら別スート
 
 	for i, 0, 10, 1
 		for j, 0, 10, 1
@@ -748,7 +791,8 @@ end
 					if ( (get_number(arr_card(i, m)) + 1) = get_number(arr_card(j, l)) ) {
 						if ( m = 0 ) | ( is_right_order(arr_card, i, m, arr_turnup(i), int_difficulty) = 0 ) {
 							int_hint_length++
-							arr_hint(i, j) = m + 1: _break
+							if ( get_suit( arr_card(i, m), int_difficulty ) = get_suit( arr_card(j, l), int_difficulty ) ) :n = 0 :else :n = 1
+							arr_hint(n, i, j) = m + 1: _break
 						}
 					}
 					if ( is_right_order(arr_card, i, m, arr_turnup(i), int_difficulty) = 0 ) :_break

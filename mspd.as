@@ -18,8 +18,10 @@
 #const global g_font_suit_y 32
 
 ; スクリーンサイズ
-#const global g_screen_x 320
-#const global g_screen_y 480
+;#const global g_screen_x 320
+;#const global g_screen_y 480
+g_screen_x = ginfo_winx
+g_screen_y = ginfo_winy
 
 ; 3π/4
 #const global g_3pi4 3*M_PI/4
