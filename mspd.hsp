@@ -16,14 +16,17 @@ flag_is_ios     = (int_os = 1)
 flag_is_android = (int_os = 2)
 flag_is_windows = (int_os = 0)
 
-celload "fon_cha1.png", 1                ; 文字画像のロード（半角）
-celdiv 1, g_font_x, g_font_y, 0, 0       ; 文字画像の分割
+; フォント画像のロード（半角）
+celload "fon_cha1.png", 1
+celdiv 1, g_font_png_x, g_font_png_y, 0, 0
 
-celload "fon_cha2.png", 2                ; 文字画像のロード（全角）
-celdiv 2, 2*g_font_x, g_font_y, 0, 0     ; 文字画像の分割
+; フォント画像のロード（全角）
+celload "fon_cha2.png", 2
+celdiv 2, 2*g_font_png_x, g_font_png_y, 0, 0
 
-celload "fon_suit.png", 3                ; カード画像のロード
-celdiv 3, g_font_suit_x, g_font_suit_y, 0, 0 ; 同じく分割
+; カード画像のロード
+celload "fon_suit.png", 3
+celdiv 3, g_font_suit_x, g_font_suit_y, 0, 0
 
 int_mousex = 0
 int_mousey = 0
@@ -44,7 +47,7 @@ arr_strsuit(2) = "･"
 arr_strsuit(3) = "ｦ"
 
 ; 拡大率の設定
-float_zoom = 0.6
+float_zoom = double( 0.1 * g_screen_x / g_font_suit_x )
 
 ; 難易度の設定
 int_difficulty = 0
@@ -99,16 +102,21 @@ repeat
 	gmode 5, 0, 0, 204
 	pos g_font_x, g_font_y/2
 	fprint str_titl1, 2
-	gmode 0
 
 	; 難易度選択の表示
+	gmode 5, 0, 0, 255
 	for n, 0, 4, 1
 		i = 2 * g_font_x
 		j = ( 4*n + 2 ) * g_font_y
 		k = 5 * g_font_x
-		color 0, 0, 0
+		color 255, 255, 255
 		boxf i, j, g_screen_x - k, j + ( 3 * g_font_y )
-		color 255, 255,255
+		switch n
+			case 0 :color 0, 0, 102 :swbreak
+			case 1 :color 204, 0, 0 :swbreak
+			case 2 :color 136, 119, 0 :swbreak
+			case 3 :color 0, 102, 34 :swbreak
+		swend
 		boxf i+1, j+1, g_screen_x - k-1, j-1 + ( 3 * g_font_y )
 		i += g_font_x
 		j = ( 4*n + 3 ) * g_font_y
@@ -416,8 +424,9 @@ repeat
 		if ( a > 3 ) {
 			; 縮小
 			float_zoom -= double(a)/100.0
-			if float_zoom < 0.5 {
-				float_zoom = 0.5
+			b = double( 0.05 * g_screen_x / g_font_suit_x )
+			if float_zoom < b {
+				float_zoom = b
 			} else {
 				int_locate_x += g_screen_x/80
 				int_locate_y += g_screen_y/80
@@ -426,8 +435,9 @@ repeat
 		if ( a < -3 ) {
 			; 拡大
 			float_zoom -= double(a)/100.0
-			if float_zoom > 2.0 {
-				float_zoom = 2.0
+			b = double( 0.2 * g_screen_x / g_font_suit_x )
+			if float_zoom > b {
+				float_zoom = b
 			} else {
 				int_locate_x -= g_screen_x/80
 				int_locate_y -= g_screen_y/80

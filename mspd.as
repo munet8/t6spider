@@ -9,13 +9,20 @@
 #pack "fon_suit.png"
 
 ;-------------------------------------------------------------------------------
-; フォントサイズ
-#const global g_font_x 12
-#const global g_font_y 24
+
+; フォント画像の分割サイズ
+#const global g_font_png_x 16
+#const global g_font_png_y 32
+
+; フォントサイズ（スクリーンサイズ比）
+;#const global g_font_x 12
+;#const global g_font_y 24
+g_font_x = 3 * ginfo_winx / 80
+g_font_y =     ginfo_winy / 20
 
 ; フォント（カード）サイズ
-#const global g_font_suit_x 48
-#const global g_font_suit_y 32
+#const global g_font_suit_x 72
+#const global g_font_suit_y 48
 
 ; スクリーンサイズ
 ;#const global g_screen_x 320
@@ -52,6 +59,8 @@ g_screen_y = ginfo_winy
 	;	半角カナは全角フォント画像より読み取る
 	;
 	i = 0: st = _p1
+	fx = double( 1.0 * g_font_x@ / g_font_png_x@ )
+	fy = double( 1.0 * g_font_y@ / g_font_png_y@ )
 
 	repeat
 		a1 = peek(st, i) :i++
@@ -62,11 +71,11 @@ g_screen_y = ginfo_winy
 			continue
 		} else {
 			if ( a1 & 128 ) {
-				if ( _charset = 2 ) :a1 += 12
-				celput 2 , a1 - 160
+				;if ( _charset = 2 ) :a1 += 12
+				celput 2 , a1 - 160, fx, fy
 			} else {
-				if ( _charset = 2 ) :a1 += 96
-				celput 1 , a1 - 32
+				;if ( _charset = 2 ) :a1 += 96
+				celput 1 , a1 - 32, fx, fy
 			}
 		}
 	loop
