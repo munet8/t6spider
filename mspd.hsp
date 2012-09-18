@@ -99,12 +99,10 @@ repeat
 	color 17, 51, 17
 	boxf 0, 0, g_screen_x, g_screen_y
 
-	gmode 5, 0, 0, 204
-	pos g_font_x, g_font_y/2
-	fprint str_titl1, 2
+	rpos g_font_x, g_font_y/2
+	fprint str_titl1, 255
 
 	; 難易度選択の表示
-	gmode 5, 0, 0, 255
 	for n, 0, 4, 1
 		i = 2 * g_font_x
 		j = ( 4*n + 2 ) * g_font_y
@@ -120,26 +118,25 @@ repeat
 		boxf i+1, j+1, g_screen_x - k-1, j-1 + ( 3 * g_font_y )
 		i += g_font_x
 		j = ( 4*n + 3 ) * g_font_y
-		pos i, j
-		fprint arr_strdif(n), 1
+		rpos i, j
+		fprint arr_strdif(n), 255
 	next
 
 	; スコアの表示（クリア・敗北時）
 	if ( int_score >= 0 ) {
-		gmode 5, 0, 0, 153
-		pos 0, g_screen_y - ( 2 * g_font_y )
-		fprint "Score:", 2
-		pos ((10 - log10(int_score)) * g_font_x), int_screen_y - g_font_y
-		fprint "" + int_score, 2
+		rpos 0, g_screen_y - g_font_y
+		fprint "Score:", 153
+		rpos ((10 - log10(int_score)) * g_font_x), g_screen_y - g_font_y
+		fprint "" + int_score, 153
 		; 残り場数
 		for i, 0, 5, 1
-			pos g_screen_x - ( 2 * g_font_x ), int_screen_y - ( g_font_y * ( 5-i ) )
-			if ( i < int_spider ) :fprint "｢", 2 :else :fprint "｡", 2
+			rpos g_screen_x - ( 2 * g_font_x ), g_screen_y - ( g_font_y * ( 6-i ) )
+			if ( i < int_spider ) :fprint "｢", 153 :else :fprint "｡", 153
 		next
 		; 完成したスートの表示
 		for i, 0, 8, 1
-			pos g_screen_x - ( 4 * g_font_x ), int_screen_y - ( g_font_y * ( i+1 ) )
-			fprint arr_finished(i), 2
+			rpos g_screen_x - ( 4 * g_font_x ), g_screen_y - ( g_font_y * ( i+2 ) )
+			fprint arr_finished(i), 153
 		next
 	}
 
@@ -149,12 +146,12 @@ repeat
 	gmode 5, 0, 0, 204
 
 	color 255, 255, 255
-	pos 0, g_screen_y - g_font_y
-	fprint "2012(C) m-ushi", 2
+	rpos 0, g_screen_y - g_font_y
+	fprint "2012(C) m-ushi", 255
 
 	if ( flag_is_ios^1 ) {
-		pos (5*g_screen_x/6) - (2*g_font_x), g_screen_y - g_font_y
-		fprint "Exit", 2
+		rpos (5*g_screen_x/6) - (2*g_font_x), g_screen_y - g_font_y
+		fprint "Exit", 255
 		line 2*g_screen_x/3, g_screen_y - g_font_y, 2*g_screen_x/3, g_screen_y
 	}
 	line 0, g_screen_y - g_font_y, g_screen_x, g_screen_y - g_font_y
@@ -384,6 +381,7 @@ repeat
 							next
 							int_spider++
 							int_ismoved = 1
+							str_trace_put = "Deal" :gosub *sub_trace_put
 							; 戻るの初期化
 							back_init
 							; ヒントの再作成
@@ -424,7 +422,7 @@ repeat
 		if ( a > 3 ) {
 			; 縮小
 			float_zoom -= double(a)/100.0
-			b = double( 0.05 * g_screen_x / g_font_suit_x )
+			b = double( 0.075 * g_screen_x / g_font_suit_x )
 			if float_zoom < b {
 				float_zoom = b
 			} else {
@@ -533,21 +531,20 @@ repeat
 	boxf a, c, b, d
 	color 0, 0, 0
 
-	gmode 5, , , 153
 	; スコア
-	pos 0, int_screen_y - g_font_y
-	fprint "Score:", 2
-	pos ((10 - log10(int_score)) * g_font_x), int_screen_y - g_font_y
-	fprint "" + int_score, 2
+	rpos 0, int_screen_y - g_font_y
+	fprint "Score:", 153
+	rpos ((10 - log10(int_score)) * g_font_x), int_screen_y - g_font_y
+	fprint "" + int_score, 153
 	; 残り場数
 	for i, 0, 5, 1
-		pos g_screen_x - ( 2 * g_font_x ), int_screen_y - ( g_font_y * ( 5-i ) )
-		if ( i < int_spider ) :fprint "｢", 2 :else :fprint "｡", 2
+		rpos g_screen_x - ( 2 * g_font_x ), int_screen_y - ( g_font_y * ( 5-i ) )
+		if ( i < int_spider ) :fprint "｢", 153 :else :fprint "｡", 153
 	next
 	; 完成したスートの表示
 	for i, 0, 8, 1
-		pos g_screen_x - ( 4 * g_font_x ), int_screen_y - ( g_font_y * ( i+1 ) )
-		fprint arr_finished(i), 2
+		rpos g_screen_x - ( 4 * g_font_x ), int_screen_y - ( g_font_y * ( i+1 ) )
+		fprint arr_finished(i), 153
 	next
 	gmode 0
 
@@ -567,15 +564,15 @@ repeat
 				int_y_plus = int(1.0 * g_font_suit_y * float_zoom)
 
 				if ( arr_turnup(i) < j ) { ; カード描画
-					pos int_x + int_locate_x, int_y + int_locate_y
+					rpos int_x + int_locate_x, int_y + int_locate_y
 					suitprint int_suit, int_number, float_zoom
 				} else {
 					if ( arr_turnup_found(i) < j ) { ; 暴露済み
 						; 色を変えるとか？
-						pos int_x + int_locate_x, int_y + int_locate_y
+						rpos int_x + int_locate_x, int_y + int_locate_y
 						suitprint int_suit, int_number, float_zoom
 						gmode 3, , , 85
-						pos int_x + int_locate_x, int_y + int_locate_y
+						rpos int_x + int_locate_x, int_y + int_locate_y
 						suitprint 1, 14, float_zoom
 						gmode 0
 					} else { ; 裏返し
@@ -585,7 +582,7 @@ repeat
 				}
 
 				; 枠を書く
-				pos int_x + int_locate_x, int_y + int_locate_y
+				rpos int_x + int_locate_x, int_y + int_locate_y
 				suit_border int_x + int_locate_x, int_y + int_locate_y, int_x_plus, int_y_plus, 0, 0, 0
 			}
 			j++
@@ -629,7 +626,7 @@ repeat
 		int_x = int((1.0 * i * g_font_suit_x - g_font_suit_x/8) * float_zoom)
 		int_y = int((1.0 * j * g_font_suit_y - g_font_suit_y/8) * float_zoom)
 
-		pos int_x + int_locate_x, int_y + int_locate_y
+		rpos int_x + int_locate_x, int_y + int_locate_y
 		f = 1.25*float_zoom
 		suitprint int_suit, int_number, f
 
@@ -640,18 +637,17 @@ repeat
 
 	; トレースビューの表示
 	if ( global_trace_row > 0 ) {
-		color 255, 255, 204
+		color 0, 0, 0
 		boxf 0, int_screen_y, g_screen_x, g_screen_y
 		for i, 0, global_trace_row, 1
-			pos 0, g_screen_y - ((1+global_trace_row-i)*g_font_y)
-			fprint arr_strtrace(i), 1
+			rpos 0, g_screen_y - ((1+global_trace_row-i)*g_font_y)
+			fprint arr_strtrace(i), 255
 		next
 	}
 
 	; ステータスバーの表示
 	color 85, 85, 102
 	boxf 0, g_screen_y - g_font_y, g_screen_x, g_screen_y
-	gmode 5, 0, 0, 204
 
 	if ( int_move_x < 0 ) {
 		; カードをつかんでいないとき
@@ -660,28 +656,28 @@ repeat
 		line 2*g_screen_x/3, g_screen_y - g_font_y, 2*g_screen_x/3, g_screen_y
 
 		if ( int_ismoved = 0 ) {
-			pos g_screen_x/6 - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
-			fprint "Shuffle", 2
+			rpos g_screen_x/6 - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
+			fprint "Shuffle", 255
 		} else {
 			if ( back_length() > 0 ) {
-				pos g_screen_x/6 - ( 2 * g_font_x ), g_screen_y - g_font_y
-				fprint "Undo", 2
+				rpos g_screen_x/6 - ( 2 * g_font_x ), g_screen_y - g_font_y
+				fprint "Undo", 255
 			}
 		}
 
 		if ( int_hint_length > 0 ) {
-			pos g_screen_x/2 - ( 2 * g_font_x ), g_screen_y - g_font_y
-			fprint "Hint", 2
+			rpos g_screen_x/2 - ( 2 * g_font_x ), g_screen_y - g_font_y
+			fprint "Hint", 255
 		}
 
 		if ( int_spider < 5 ) {
 			if ( exist_freecell = 0 ) {
-				pos 5*g_screen_x/6 - ( 2 * g_font_x ), g_screen_y - g_font_y
-				fprint "Deal", 2
+				rpos 5*g_screen_x/6 - ( 2 * g_font_x ), g_screen_y - g_font_y
+				fprint "Deal", 255
 			}
 		} else {
-			pos 5*g_screen_x/6 - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
-			fprint "Give up", 2
+			rpos 5*g_screen_x/6 - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
+			fprint "Give up", 255
 		}
 	} else {
 		; カードをつかんでいないとき
@@ -691,10 +687,10 @@ repeat
 		next
 
 		for i, 0, 4, 1
-			pos (2*i+1)*g_screen_x/8 - g_font_x, g_screen_y - g_font_y
+			rpos (2*i+1)*g_screen_x/8 - g_font_x, g_screen_y - g_font_y
 			c=""
 			poke c, 0, 167+i
-			fprint c, 2
+			fprint c, 255
 		next
 	}
 
@@ -765,6 +761,7 @@ end
 			}
 		next
 		int_score += 100
+		str_trace_put = "Complete (" + i + ")" :gosub *sub_trace_put
 		; 戻るの初期化
 		back_init
 	}

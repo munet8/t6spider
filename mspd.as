@@ -17,8 +17,8 @@
 ; フォントサイズ（スクリーンサイズ比）
 ;#const global g_font_x 12
 ;#const global g_font_y 24
-g_font_x = 3 * ginfo_winx / 80
-g_font_y =     ginfo_winy / 20
+g_font_x = 3 * (ginfo_winx + ginfo_winy) / 200
+g_font_y = 3 * (ginfo_winx + ginfo_winy) / 100
 
 ; フォント（カード）サイズ
 #const global g_font_suit_x 72
@@ -35,8 +35,8 @@ g_screen_y = ginfo_winy
 
 ; トレースビュー行数
 ; リリース時は 0
-;#const global global_trace_row 4
-#const global global_trace_row 0
+#const global global_trace_row 4
+;#const global global_trace_row 0
 
 #module
 #defcfunc log10 int _x
@@ -51,7 +51,14 @@ g_screen_y = ginfo_winy
 #global
 
 #module
-#deffunc fprint str _p1, int _charset
+#deffunc rpos int _x, int _y
+	; 回転対応するつもりのpos
+	pos _x, _y
+	return
+#global
+
+#module
+#deffunc fprint str _p1, int _alpha
 	;	fprint "message"
 	;	(画像を使用したフォント表示を行ないます)
 	;	"message" : 表示するメッセージ
@@ -62,6 +69,8 @@ g_screen_y = ginfo_winy
 	fx = double( 1.0 * g_font_x@ / g_font_png_x@ )
 	fy = double( 1.0 * g_font_y@ / g_font_png_y@ )
 
+	gmode 5, 0, 0, _alpha
+
 	repeat
 		a1 = peek(st, i) :i++
 		if a1 = 0 :break
@@ -71,10 +80,8 @@ g_screen_y = ginfo_winy
 			continue
 		} else {
 			if ( a1 & 128 ) {
-				;if ( _charset = 2 ) :a1 += 12
 				celput 2 , a1 - 160, fx, fy
 			} else {
-				;if ( _charset = 2 ) :a1 += 96
 				celput 1 , a1 - 32, fx, fy
 			}
 		}
@@ -182,7 +189,7 @@ g_screen_y = ginfo_winy
 #module
 #deffunc suit_border int _x1, int _y1, int _x2, int _y2, int _r, int _g, int b
 	; カードの枠を書く
-	pos _x1, _y1
+	rpos _x1, _y1
 	color _r, _g, _b
 	line _x1     , _y1 + _y2
 	line _x1+_x2 , _y1 + _y2
