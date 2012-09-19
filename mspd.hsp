@@ -17,16 +17,16 @@ flag_is_android = (int_os = 2)
 flag_is_windows = (int_os = 0)
 
 ; フォント画像のロード（半角）
-celload "fon_cha1.png", 1
-celdiv 1, g_font_png_x, g_font_png_y, 0, 0
+celload "fon_cha1.png", 2
+celdiv 2, g_font_png_x, g_font_png_y, 0, 0
 
 ; フォント画像のロード（全角）
-celload "fon_cha2.png", 2
-celdiv 2, 2*g_font_png_x, g_font_png_y, 0, 0
+celload "fon_cha2.png", 3
+celdiv 3, 2*g_font_png_x, g_font_png_y, 0, 0
 
 ; カード画像のロード
-celload "fon_suit.png", 3
-celdiv 3, g_font_suit_x, g_font_suit_y, 0, 0
+celload "fon_suit.png", 4
+celdiv 4, g_font_suit_x, g_font_suit_y, 0, 0
 
 int_mousex = 0
 int_mousey = 0
@@ -99,7 +99,7 @@ repeat
 	color 17, 51, 17
 	boxf 0, 0, g_screen_x, g_screen_y
 
-	rpos g_font_x, g_font_y/2
+	pos g_font_x, g_font_y/2
 	fprint str_titl1, 255
 
 	; 難易度選択の表示
@@ -118,24 +118,24 @@ repeat
 		boxf i+1, j+1, g_screen_x - k-1, j-1 + ( 3 * g_font_y )
 		i += g_font_x
 		j = ( 4*n + 3 ) * g_font_y
-		rpos i, j
+		pos i, j
 		fprint arr_strdif(n), 255
 	next
 
 	; スコアの表示（クリア・敗北時）
 	if ( int_score >= 0 ) {
-		rpos 0, g_screen_y - g_font_y
+		pos 0, g_screen_y - g_font_y
 		fprint "Score:", 153
-		rpos ((10 - log10(int_score)) * g_font_x), g_screen_y - g_font_y
+		pos ((10 - log10(int_score)) * g_font_x), g_screen_y - g_font_y
 		fprint "" + int_score, 153
 		; 残り場数
 		for i, 0, 5, 1
-			rpos g_screen_x - ( 2 * g_font_x ), g_screen_y - ( g_font_y * ( 6-i ) )
+			pos g_screen_x - ( 2 * g_font_x ), g_screen_y - ( g_font_y * ( 6-i ) )
 			if ( i < int_spider ) :fprint "｢", 153 :else :fprint "｡", 153
 		next
 		; 完成したスートの表示
 		for i, 0, 8, 1
-			rpos g_screen_x - ( 4 * g_font_x ), g_screen_y - ( g_font_y * ( i+2 ) )
+			pos g_screen_x - ( 4 * g_font_x ), g_screen_y - ( g_font_y * ( i+2 ) )
 			fprint arr_finished(i), 153
 		next
 	}
@@ -146,11 +146,11 @@ repeat
 	gmode 5, 0, 0, 204
 
 	color 255, 255, 255
-	rpos 0, g_screen_y - g_font_y
+	pos (g_screen_x/3) - (7*g_font_x) , g_screen_y - g_font_y
 	fprint "2012(C) m-ushi", 255
 
 	if ( flag_is_ios^1 ) {
-		rpos (5*g_screen_x/6) - (2*g_font_x), g_screen_y - g_font_y
+		pos (5*g_screen_x/6) - (2*g_font_x), g_screen_y - g_font_y
 		fprint "Exit", 255
 		line 2*g_screen_x/3, g_screen_y - g_font_y, 2*g_screen_x/3, g_screen_y
 	}
@@ -415,6 +415,13 @@ repeat
 		}
 	}
 
+	; 最大行数の取得
+	int_max_y = 0
+	for i, 0, 10, 1
+		j = get_rows( arr_card, i )
+		if ( int_max_y < j ) :int_max_y = j
+	next
+
 	getkey gky, 2
 	if ( gky = 1 ) {
 		; ズーム
@@ -465,15 +472,21 @@ repeat
 			; カードをつかんでいるときの移動
 			int_scroll_weight++ :if ( int_scroll_weight > 40 ) :int_scroll_weight = 40
 			i = int_mousex / (g_screen_x / 4)
+			c = int(1.0 * int_max_y * g_font_suit_y * float_zoom)
+			if ( c > int_screen_y ) {
+				d = -1
+			} else {
+				d = 1
+			}
 			switch i
 			case 0
 				int_locate_x += int_scroll_weight
 				swbreak
 			case 1
-				int_locate_y += int_scroll_weight
+				int_locate_y += int_scroll_weight * d
 				swbreak
 			case 2
-				int_locate_y -= int_scroll_weight
+				int_locate_y -= int_scroll_weight * d
 				swbreak
 			case 3
 				int_locate_x -= int_scroll_weight
@@ -485,11 +498,6 @@ repeat
 	}
 
 	; 画面位置調整
-	int_max_y = 0
-	for i, 0, 10, 1
-		j = get_rows( arr_card, i )
-		if ( int_max_y < j ) :int_max_y = j
-	next
 	b = int(10.0 * g_font_suit_x * float_zoom)
 	if ( b < g_screen_x ) {
 		if ( int_locate_x < 0 ) :int_locate_x = 0
@@ -532,18 +540,18 @@ repeat
 	color 0, 0, 0
 
 	; スコア
-	rpos 0, int_screen_y - g_font_y
+	pos 0, int_screen_y - g_font_y
 	fprint "Score:", 153
-	rpos ((10 - log10(int_score)) * g_font_x), int_screen_y - g_font_y
+	pos ((10 - log10(int_score)) * g_font_x), int_screen_y - g_font_y
 	fprint "" + int_score, 153
 	; 残り場数
 	for i, 0, 5, 1
-		rpos g_screen_x - ( 2 * g_font_x ), int_screen_y - ( g_font_y * ( 5-i ) )
+		pos g_screen_x - ( 2 * g_font_x ), int_screen_y - ( g_font_y * ( 5-i ) )
 		if ( i < int_spider ) :fprint "｢", 153 :else :fprint "｡", 153
 	next
 	; 完成したスートの表示
 	for i, 0, 8, 1
-		rpos g_screen_x - ( 4 * g_font_x ), int_screen_y - ( g_font_y * ( i+1 ) )
+		pos g_screen_x - ( 4 * g_font_x ), int_screen_y - ( g_font_y * ( i+1 ) )
 		fprint arr_finished(i), 153
 	next
 	gmode 0
@@ -564,15 +572,15 @@ repeat
 				int_y_plus = int(1.0 * g_font_suit_y * float_zoom)
 
 				if ( arr_turnup(i) < j ) { ; カード描画
-					rpos int_x + int_locate_x, int_y + int_locate_y
+					pos int_x + int_locate_x, int_y + int_locate_y
 					suitprint int_suit, int_number, float_zoom
 				} else {
 					if ( arr_turnup_found(i) < j ) { ; 暴露済み
 						; 色を変えるとか？
-						rpos int_x + int_locate_x, int_y + int_locate_y
+						pos int_x + int_locate_x, int_y + int_locate_y
 						suitprint int_suit, int_number, float_zoom
 						gmode 3, , , 85
-						rpos int_x + int_locate_x, int_y + int_locate_y
+						pos int_x + int_locate_x, int_y + int_locate_y
 						suitprint 1, 14, float_zoom
 						gmode 0
 					} else { ; 裏返し
@@ -582,7 +590,7 @@ repeat
 				}
 
 				; 枠を書く
-				rpos int_x + int_locate_x, int_y + int_locate_y
+				pos int_x + int_locate_x, int_y + int_locate_y
 				suit_border int_x + int_locate_x, int_y + int_locate_y, int_x_plus, int_y_plus, 0, 0, 0
 			}
 			j++
@@ -626,7 +634,7 @@ repeat
 		int_x = int((1.0 * i * g_font_suit_x - g_font_suit_x/8) * float_zoom)
 		int_y = int((1.0 * j * g_font_suit_y - g_font_suit_y/8) * float_zoom)
 
-		rpos int_x + int_locate_x, int_y + int_locate_y
+		pos int_x + int_locate_x, int_y + int_locate_y
 		f = 1.25*float_zoom
 		suitprint int_suit, int_number, f
 
@@ -640,7 +648,7 @@ repeat
 		color 0, 0, 0
 		boxf 0, int_screen_y, g_screen_x, g_screen_y
 		for i, 0, global_trace_row, 1
-			rpos 0, g_screen_y - ((1+global_trace_row-i)*g_font_y)
+			pos 0, g_screen_y - ((1+global_trace_row-i)*g_font_y)
 			fprint arr_strtrace(i), 255
 		next
 	}
@@ -656,27 +664,27 @@ repeat
 		line 2*g_screen_x/3, g_screen_y - g_font_y, 2*g_screen_x/3, g_screen_y
 
 		if ( int_ismoved = 0 ) {
-			rpos g_screen_x/6 - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
+			pos g_screen_x/6 - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
 			fprint "Shuffle", 255
 		} else {
 			if ( back_length() > 0 ) {
-				rpos g_screen_x/6 - ( 2 * g_font_x ), g_screen_y - g_font_y
+				pos g_screen_x/6 - ( 2 * g_font_x ), g_screen_y - g_font_y
 				fprint "Undo", 255
 			}
 		}
 
 		if ( int_hint_length > 0 ) {
-			rpos g_screen_x/2 - ( 2 * g_font_x ), g_screen_y - g_font_y
+			pos g_screen_x/2 - ( 2 * g_font_x ), g_screen_y - g_font_y
 			fprint "Hint", 255
 		}
 
 		if ( int_spider < 5 ) {
 			if ( exist_freecell = 0 ) {
-				rpos 5*g_screen_x/6 - ( 2 * g_font_x ), g_screen_y - g_font_y
+				pos 5*g_screen_x/6 - ( 2 * g_font_x ), g_screen_y - g_font_y
 				fprint "Deal", 255
 			}
 		} else {
-			rpos 5*g_screen_x/6 - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
+			pos 5*g_screen_x/6 - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
 			fprint "Give up", 255
 		}
 	} else {
@@ -687,7 +695,7 @@ repeat
 		next
 
 		for i, 0, 4, 1
-			rpos (2*i+1)*g_screen_x/8 - g_font_x, g_screen_y - g_font_y
+			pos (2*i+1)*g_screen_x/8 - g_font_x, g_screen_y - g_font_y
 			c=""
 			poke c, 0, 167+i
 			fprint c, 255

@@ -35,7 +35,7 @@ g_screen_y = ginfo_winy
 
 ; トレースビュー行数
 ; リリース時は 0
-#const global global_trace_row 4
+#const global global_trace_row 0
 ;#const global global_trace_row 0
 
 #module
@@ -48,13 +48,6 @@ g_screen_y = ginfo_winy
 		ret = int ( logf(_x) / logf(10) )
 	}
 	return ret
-#global
-
-#module
-#deffunc rpos int _x, int _y
-	; 回転対応するつもりのpos
-	pos _x, _y
-	return
 #global
 
 #module
@@ -80,9 +73,9 @@ g_screen_y = ginfo_winy
 			continue
 		} else {
 			if ( a1 & 128 ) {
-				celput 2 , a1 - 160, fx, fy
+				celput 3 , a1 - 160, fx, fy
 			} else {
-				celput 1 , a1 - 32, fx, fy
+				celput 2 , a1 - 32, fx, fy
 			}
 		}
 	loop
@@ -95,7 +88,7 @@ g_screen_y = ginfo_winy
 	; _i suit
 	; _j number
 	x = (_j-1)*4 + (_i-1)
-	celput 3, x, _f, _f
+	celput 4, x, _f, _f
 	return
 #global
 
@@ -189,7 +182,7 @@ g_screen_y = ginfo_winy
 #module
 #deffunc suit_border int _x1, int _y1, int _x2, int _y2, int _r, int _g, int b
 	; カードの枠を書く
-	rpos _x1, _y1
+	pos _x1, _y1
 	color _r, _g, _b
 	line _x1     , _y1 + _y2
 	line _x1+_x2 , _y1 + _y2
