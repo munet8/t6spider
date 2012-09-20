@@ -311,7 +311,7 @@ repeat
 									_break
 								}
 							next
-		
+
 							if ( m = 0 ) & ( arr_card(i,j) > 0 ) {
 								; セルをつまむ
 								int_move_x = i
@@ -332,8 +332,8 @@ repeat
 			}
 		} else {
 			; ステータスバーみたいな領域
-			if ( int_move_x < 0 ) {
-				if ( int_mousex < (g_screen_x / 3)) {
+			if ( int_mousex >= ( g_screen_x / 12 )) & ( int_mousex < ( 11 * g_screen_x / 12 )) & ( int_move_x < 0 ) {
+				if ( int_mousex < ( 13 * g_screen_x / 36 )) {
 					if ( int_ismoved ) {
 						; 戻る
 						a = back_pop()
@@ -353,9 +353,9 @@ repeat
 								int_move_y++ :j++
 							wend
 							arr_turnup(int_move_x) = int_turnup
-			
+
 							int_score-- :if ( int_score < 0 ) :int_score = 0
-		
+
 							; ヒントの再作成
 							gosub *sub_make_hint
 						}
@@ -367,7 +367,7 @@ repeat
 					}
 					gosub *sub_init_click_info
 				} else {
-					if ( ( int_mousex >= (2 * g_screen_x / 3)) ) {
+					if ( ( int_mousex >= ( 23 * g_screen_x / 36 )) ) {
 						; カード配布
 						if ( int_spider = 5 ) :break
 						if ( exist_freecell = 0 ) {
@@ -422,42 +422,7 @@ repeat
 		if ( int_max_y < j ) :int_max_y = j
 	next
 
-	getkey gky, 2
-	if ( gky = 1 ) {
-		; ズーム
-		a = int_mousey_before - int_mousey
-		if ( a > 3 ) {
-			; 縮小
-			float_zoom -= double(a)/100.0
-			b = double( 0.075 * g_screen_x / g_font_suit_x )
-			if float_zoom < b {
-				float_zoom = b
-			} else {
-				int_locate_x += g_screen_x/80
-				int_locate_y += g_screen_y/80
-			}
-		}
-		if ( a < -3 ) {
-			; 拡大
-			float_zoom -= double(a)/100.0
-			b = double( 0.2 * g_screen_x / g_font_suit_x )
-			if float_zoom > b {
-				float_zoom = b
-			} else {
-				int_locate_x -= g_screen_x/80
-				int_locate_y -= g_screen_y/80
-			}
-		}
-		; 回転
-		a = int_mousex_before - int_mousex
-		if ( a > 5 ) {
-			; 左回転
-		}
-		if ( a < -5 ) {
-			; 右回転
-		}
- 	}
- 	; 左右移動
+ 	; 左右移動・拡縮
  	stick gky, 256
  	if ( gky & 256 ) {
 		a = int_mousex_before - int_mousex
@@ -468,30 +433,57 @@ repeat
 		if ( abs(a) > 3 ) {
 			int_locate_y -= a
 		}
-		if ( int_mousey >= ( g_screen_y - g_font_y )) & ( int_move_x >= 0 ) {
-			; カードをつかんでいるときの移動
-			int_scroll_weight++ :if ( int_scroll_weight > 40 ) :int_scroll_weight = 40
-			i = int_mousex / (g_screen_x / 4)
-			c = int(1.0 * int_max_y * g_font_suit_y * float_zoom)
-			if ( c > int_screen_y ) {
-				d = -1
+
+		if ( int_mousey >= ( g_screen_y - g_font_y )) {
+			if ( int_mousex < ( g_screen_x / 12 )) {
+				; 縮小
+				float_zoom -= double(2)/100.0
+				b = double( 0.075 * g_screen_x / g_font_suit_x )
+				if float_zoom < b {
+					float_zoom = b
+				} else {
+					int_locate_x += g_screen_x/80
+					int_locate_y += g_screen_y/80
+				}
 			} else {
-				d = 1
+				if ( int_mousex >= ( 11 * g_screen_x / 12 )) {
+					; 拡大
+					float_zoom += double(2)/100.0
+					b = double( 0.2 * g_screen_x / g_font_suit_x )
+					if float_zoom > b {
+						float_zoom = b
+					} else {
+						int_locate_x -= g_screen_x/80
+						int_locate_y -= g_screen_y/80
+					}
+				} else {
+					if ( int_move_x >= 0 ) {
+						; カードをつかんでいるときの移動
+						int_scroll_weight++ :if ( int_scroll_weight > 40 ) :int_scroll_weight = 40
+						i = ( int_mousex - ( g_screen_x / 12 ) ) * 24 / ( 5 * g_screen_x )
+
+						c = int(10.0 * g_font_suit_x * float_zoom)
+						if ( c > g_screen_x ) :b =  1 :else :b = -1
+						c = int(1.0 * int_max_y * g_font_suit_y * float_zoom)
+						if ( c > int_screen_y ) :d = -1 :else :d = 1
+
+						switch i
+						case 0
+							int_locate_x += int_scroll_weight * b
+							swbreak
+						case 1
+							int_locate_y += int_scroll_weight * d
+							swbreak
+						case 2
+							int_locate_y -= int_scroll_weight * d
+							swbreak
+						case 3
+							int_locate_x -= int_scroll_weight * b
+							swbreak
+						swend
+					}
+				}
 			}
-			switch i
-			case 0
-				int_locate_x += int_scroll_weight
-				swbreak
-			case 1
-				int_locate_y += int_scroll_weight * d
-				swbreak
-			case 2
-				int_locate_y -= int_scroll_weight * d
-				swbreak
-			case 3
-				int_locate_x -= int_scroll_weight
-				swbreak
-			swend
 		}
 	} else {
 		int_scroll_weight = 8
@@ -657,47 +649,55 @@ repeat
 	color 85, 85, 102
 	boxf 0, g_screen_y - g_font_y, g_screen_x, g_screen_y
 
+	pos 1*g_screen_x/24 - g_font_x/2, g_screen_y - g_font_y
+	fprint "-", 255
+	pos 23*g_screen_x/24 - g_font_x/2, g_screen_y - g_font_y
+	fprint "+", 255
+
 	if ( int_move_x < 0 ) {
 		; カードをつかんでいないとき
 		color 255, 255, 255
-		line   g_screen_x/3, g_screen_y - g_font_y,   g_screen_x/3, g_screen_y
-		line 2*g_screen_x/3, g_screen_y - g_font_y, 2*g_screen_x/3, g_screen_y
+		for i, 0, 4, 1
+			j = 10 * i + 3
+			line j * g_screen_x / 36, g_screen_y - g_font_y, j * g_screen_x / 36, g_screen_y
+		next
 
 		if ( int_ismoved = 0 ) {
-			pos g_screen_x/6 - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
+			pos ( 2 * g_screen_x / 9 ) - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
 			fprint "Shuffle", 255
 		} else {
 			if ( back_length() > 0 ) {
-				pos g_screen_x/6 - ( 2 * g_font_x ), g_screen_y - g_font_y
+				pos ( 2 * g_screen_x / 9 ) - ( 2 * g_font_x ), g_screen_y - g_font_y
 				fprint "Undo", 255
 			}
 		}
 
 		if ( int_hint_length > 0 ) {
-			pos g_screen_x/2 - ( 2 * g_font_x ), g_screen_y - g_font_y
+			pos g_screen_x / 2 - ( 2 * g_font_x ), g_screen_y - g_font_y
 			fprint "Hint", 255
 		}
 
 		if ( int_spider < 5 ) {
 			if ( exist_freecell = 0 ) {
-				pos 5*g_screen_x/6 - ( 2 * g_font_x ), g_screen_y - g_font_y
+				pos ( 7 * g_screen_x / 9 ) - ( 2 * g_font_x ), g_screen_y - g_font_y
 				fprint "Deal", 255
 			}
 		} else {
-			pos 5*g_screen_x/6 - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
+			pos ( 7 * g_screen_x / 9 ) - ( 7 * g_font_x / 2 ), g_screen_y - g_font_y
 			fprint "Give up", 255
 		}
 	} else {
 		; カードをつかんでいないとき
 		color 255, 255, 255
-		for i, 1, 4, 1
-			line i*g_screen_x/4, g_screen_y - g_font_y, i*g_screen_x/4, g_screen_y
+		for i, 0, 5, 1
+			j = 5 * i + 2
+			line j * g_screen_x / 24, g_screen_y - g_font_y, j * g_screen_x / 24, g_screen_y
 		next
 
 		for i, 0, 4, 1
-			pos (2*i+1)*g_screen_x/8 - g_font_x, g_screen_y - g_font_y
+			pos ( 10 * i + 9 ) * g_screen_x / 48 - g_font_x, g_screen_y - g_font_y
 			c=""
-			poke c, 0, 167+i
+			poke c, 0, 167 + i
 			fprint c, 255
 		next
 	}
