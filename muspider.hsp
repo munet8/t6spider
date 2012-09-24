@@ -124,9 +124,9 @@ repeat
 
 	; スコアの表示（クリア・敗北時）
 	if ( int_score >= 0 ) {
-		pos 0, g_screen_y - g_font_y
+		pos 0, g_screen_y - ( 2 * g_font_y )
 		fprint "Score:", 153
-		pos ((10 - log10(int_score)) * g_font_x), g_screen_y - g_font_y
+		pos ((10 - log10(int_score)) * g_font_x), g_screen_y - ( 2 * g_font_y )
 		fprint "" + int_score, 153
 		; 残り場数
 		for i, 0, 5, 1

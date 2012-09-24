@@ -17,8 +17,8 @@
 ; フォントサイズ（スクリーンサイズ比）
 ;#const global g_font_x 12
 ;#const global g_font_y 24
-g_font_x = 3 * (ginfo_winx + ginfo_winy) / 200
-g_font_y = 3 * (ginfo_winx + ginfo_winy) / 100
+g_font_x = ginfo_winx / 25
+g_font_y = ginfo_winy / 20
 
 ; フォント（カード）サイズ
 #const global g_font_suit_x 72
@@ -43,7 +43,7 @@ g_screen_y = ginfo_winy
 	; log10(x)
 	; 常用対数（切捨て）を返す
 	if ( _x <= 0 ) {
-		ret = 1
+		ret = 0
 	} else {
 		ret = int ( logf(_x) / logf(10) )
 	}
