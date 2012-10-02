@@ -16,6 +16,10 @@ WinXPスパイダソリティアとの違い
   ・設計がスパゲッティ。
   ・コードがスパゲッティ。
 
+ライセンス
+
+  ・修正BSDライセンス http://www.freebsd.org/ja/copyright/freebsd-license.html に従います。
+
 必要環境
 
   ・Windows 32bit版 と思われます。
@@ -23,12 +27,14 @@ WinXPスパイダソリティアとの違い
 
 開発環境
 
-  ・HSP3Dish http://hsp.tv/ v3.3a8
+  ・HSP3Dish http://hsp.tv/ v3.31
   ・WinXP SP3
 
 履歴
   ・v1.1
     クリア・ギブアップ時にスコアが出ないのを修正。
+    ライセンス設定。
+    ほか微修正。
   ・v1.0
     初版。
 
