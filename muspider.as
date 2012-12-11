@@ -30,6 +30,8 @@ g_font_y = ginfo_winy / 20
 g_screen_x = ginfo_winx
 g_screen_y = ginfo_winy
 
+g_screen_view_y = g_screen_y - ( 2 * g_font_y )
+
 ; 3ƒÎ/4
 #const global g_3pi4 3*M_PI/4
 
