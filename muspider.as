@@ -94,6 +94,7 @@ g_screen_view_y = g_screen_y - ( 2 * g_font_y )
 	return
 #global
 
+; 元に戻す（有限スタック）の実装
 #module back_stack
 #deffunc back_init
 	dim stack, 1024, 5
@@ -122,15 +123,15 @@ g_screen_view_y = g_screen_y - ( 2 * g_font_y )
 		index++
 	}
 	return
-#defcfunc back_pop
+#defcfunc back_pop var _i, var _j, var _x, var _y, var _t
 	if ( 0 < index ) {
 		index--
-		i = stack(index, 0) &  15
-		j = stack(index, 1) & 127
-		x = stack(index, 2) &  15
-		y = stack(index, 3) & 255
-		t = stack(index, 4) & 255
-		ret = ( i << 27 ) + ( j << 20 ) + ( x << 16 ) + ( y << 8 ) + t
+		_i = stack(index, 0)
+		_j = stack(index, 1)
+		_x = stack(index, 2)
+		_y = stack(index, 3)
+		_t = stack(index, 4)
+		ret = 0
 	} else {
 		ret = -1
 	}
