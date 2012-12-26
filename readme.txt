@@ -111,7 +111,7 @@ WinXPスパイダソリティアとの違い
 
   ・VLゴシックフォントファミリ http://vlgothic.dicey.org/
   ・Symbol http://www.adobe.com/
-  ・Webdings http://www.microsoft.com/
+  ・Webdings Wingdings http://www.microsoft.com/
 
 
 
@@ -120,5 +120,6 @@ WinXPスパイダソリティアとの違い
   ・メニュー画面で「コピーライト領域」をタップ
       背景が赤くなり、３組のトランプで遊べます。
       AisleRiotのスパイダ・スリーデックスのような12列の親切設計ではなく
-      10列のままの心折設計となっており、難易度は激増しています。
-      作者もLv3までしかクリアできません。
+      10列のままの心折設計となっており、難易度というより詰みゲー度が激増しています。
+      作者もLv3までしかクリアできません。それも、極めて稀に。
+

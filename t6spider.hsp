@@ -1,7 +1,7 @@
 #include "hsp3dish.as"
-#include "muspider.as"
+#include "t6spider.as"
 
-title "munet spider"
+title "tan6 spider"
 
 ;-------------------------------------------------------------------------------
 ;
@@ -32,7 +32,7 @@ int_mousex = 0
 int_mousey = 0
 randomize                                ; —”‰Šú‰»
 
-str_titl1="Munet Spider¡ v1.2"
+str_titl1="tan6 Spider¡ v1.3"
 
 sdim arr_strdif, 40, 8
 arr_strdif(0) = "Lv1 £x8"
@@ -109,10 +109,12 @@ repeat
 		if (( int_mousex <= ( 2 * g_screen_x / 3 )) & (( g_screen_view_y ) < int_mousey )) {
 			int_score = -1
 			if ( int_amount_cards  = 104 ) {
+				str_titl1="tan6 Bermuda« v1.3"
 				int_amount_cards  = 156
 				int_amount_spider = 10
 				int_amount_suits  = 12
 			} else {
+				str_titl1="tan6 Spider¡ v1.3"
 				int_amount_cards  = 104
 				int_amount_spider = 5
 				int_amount_suits  = 8
@@ -176,13 +178,8 @@ repeat
 	gmode 5, 0, 0, 204
 
 	color 255, 255, 255
-	if ( int_amount_cards = 104 ) {
-		pos ( g_screen_x / 3 ) - ( 7 * g_font_x ) , g_screen_view_y + ( g_font_y / 2 )
-		fprint "2012(C) m-ushi", 255
-	} else {
-		pos ( g_screen_x / 3 ) - ( 11 * g_font_x / 2 ) , g_screen_view_y + ( g_font_y / 2 )
-		fprint "Three Decks", 255
-	}
+	pos ( g_screen_x / 3 ) - ( 7 * g_font_x ) , g_screen_view_y + ( g_font_y / 2 )
+	fprint "2012(C) m-ushi", 255
 
 	if ( flag_is_ios ^ 1 ) {
 		pos ( 5 * g_screen_x / 6 ) - ( 2 * g_font_x ), g_screen_view_y + ( g_font_y / 2 )
@@ -464,7 +461,7 @@ repeat
 				}
 				swbreak
 			case 4 ; ‚ ‚«‚ç‚ß‚é
-				if ( int_spider = int_amount_spider ) :break
+				break ;if ( int_spider = int_amount_spider ) :break
 				swbreak
 			case 5 ; AltF4
 				gosub *exit
@@ -592,7 +589,7 @@ repeat
 	b = int(10.0 * g_font_suit_x * float_zoom) + int_locate_x
 	c = int_locate_y
 	d = int(1.0 * int_max_y * g_font_suit_y * float_zoom ) + int_locate_y
-	color 102, 153, 102
+	gosub *sub_fgcolor
 	boxf a, c, b, d
 	color 0, 0, 0
 
@@ -771,10 +768,7 @@ repeat
 	pos (     g_screen_x / 18 ) - ( g_font_x / 2 ), g_screen_view_y + g_font_y :fprint "-", 255
 	pos ( 3 * g_screen_x / 18 ) - ( g_font_x / 2 ), g_screen_view_y + g_font_y :fprint "0", 255
 	pos ( 5 * g_screen_x / 18 ) - ( g_font_x / 2 ), g_screen_view_y + g_font_y :fprint "+", 255
-	if ( int_spider = int_amount_spider ) {
-		pos ( g_screen_x / 2 ) - ( 7 * g_font_x / 2 ), g_screen_view_y + g_font_y
-		fprint "Give up", 255
-	}
+	pos ( g_screen_x / 2 ) - ( 7 * g_font_x / 2 ), g_screen_view_y + g_font_y :fprint "Give up", 255
 	if ( flag_is_ios ^ 1 ) {
 		pos ( 5 * g_screen_x / 6 ) - ( 2 * g_font_x ) :fprint "Exit", 255
 	}
@@ -864,7 +858,7 @@ end
 	if ( chk_complete( arr_card, i, arr_turnup(i), int_difficulty ) = 1 ) {
 		k = get_rows( arr_card, i )
 		n = get_suit( arr_card( i, k-1 ), int_difficulty ) - 1
-		for m, k-1, k-14, -1
+		for m, k - 1, k - 14, -1
 			arr_card(i, m) = 0
 		next
 		; ˆê–‡ŠJ‚¯‚é
@@ -937,7 +931,19 @@ end
 	return
 
 *sub_bgcolor
-	if ( int_amount_cards = 104 ) :color 17, 51, 17 :else :color 51, 17, 17
+	;if ( int_amount_cards = 104 ) :color 17, 51, 17 :else :color 51, 17, 17
+	switch int_amount_cards
+	case 104 :color 17, 51, 17 :swbreak
+	case 156 :color 17, 17, 51 :swbreak
+	swend
+	return
+
+*sub_fgcolor
+	;if ( int_amount_cards = 104 ) :color 102, 153, 102 :else :color 170, 119, 136
+	switch int_amount_cards
+	case 104 :color 102, 153, 102 :swbreak
+	case 156 :color  85, 102, 136 :swbreak
+	swend
 	return
 
 *exit
