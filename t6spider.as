@@ -1,6 +1,6 @@
 ;-------------------------------------------------------------------------------
 ; コンパイルオプション
-#packopt name "muspider.exe"
+#packopt name "t6spider.exe"
 #packopt type 0
 #packopt xsize 320
 #packopt ysize 480
@@ -185,11 +185,11 @@ g_screen_view_y = g_screen_y - ( 2 * g_font_y )
 #module
 #deffunc suit_border int _x1, int _y1, int _x2, int _y2, int _r, int _g, int b
 	; カードの枠を書く
-	pos _x1, _y1
 	color _r, _g, _b
+	pos _x1, _y1
 	line _x1     , _y1 + _y2
-	line _x1+_x2 , _y1 + _y2
-	line _x1+_x2 , _y1
+	line _x1 +_x2, _y1 + _y2
+	line _x1 +_x2, _y1
 	line _x1     , _y1
 	return
 #global
