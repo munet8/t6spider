@@ -86,7 +86,7 @@ g_screen_view_y = g_screen_y - ( 2 * g_font_y )
 #global
 
 #module
-#deffunc suitprint int _i, int _j, var _f
+#deffunc suit_print int _i, int _j, var _f
 	; _i suit
 	; _j number
 	x = (_j-1)*4 + (_i-1)
