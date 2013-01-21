@@ -175,8 +175,10 @@ repeat
 	gmode 5, 0, 0, 204
 
 	color 255, 255, 255
-	pos ( g_screen_x / 3 ) - ( 7 * g_font_x ) , g_screen_view_y + ( g_font_y / 2 )
-	fprint "2012(C) m-ushi", 255
+	pos ( g_screen_x / 3 ) - ( 6 * g_font_x ) , g_screen_view_y
+	fprint "2012-2013(C)", 255
+	pos ( g_screen_x / 3 ) - ( 3 * g_font_x ) , g_screen_view_y + g_font_y
+	fprint "m-ushi", 255
 
 	if ( flag_is_ios ^ 1 ) {
 		pos ( 5 * g_screen_x / 6 ) - ( 2 * g_font_x ), g_screen_view_y + ( g_font_y / 2 )

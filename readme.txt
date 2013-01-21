@@ -22,9 +22,16 @@ WinXPスパイダソリティアとの違い
   ・再挑戦時の初期スコアは落ちる(500→250→125→…)。
   ・再挑戦時、次に配られるカードがプレビューされる。
 
-ライセンス
+WinVista以降スパイダソリティアとの違い
+
+  ・完成したスートを戻せない。
+  ・配られたカードを戻せない。
+
+利用規約
 
   ・修正BSDライセンス http://www.freebsd.org/ja/copyright/freebsd-license.html に従います。
+  ・著作権は m-ushi に帰属します。
+  ・修正BSDライセンスはこのテキストの末尾に添付しています。
 
 必要環境
 
@@ -33,13 +40,13 @@ WinXPスパイダソリティアとの違い
 
 開発環境
 
-  ・HSP3Dish http://hsp.tv/ v3.31
+  ・HSP3Dish http://hsp.tv/ v3.32b2
   ・WinXP SP3
 
 履歴
   ・v1.3
     tan6ブランドとして設定。
-    UIかなり変更。
+    UI少し変更。
   ・v1.2
     Retry・スリーデックスの実装。
     Win32向けのショートカットキー実装。
@@ -92,6 +99,13 @@ WinXPスパイダソリティアとの違い
   ・「Hint」（ヒントを出せる時）
       ヒント表示
 
+  ・Zキー（Win32のみ）
+      「Reset」「Undo」に同じ
+  ・Mキー（Win32のみ）
+      「Hint」に同じ
+  ・Dキー（Win32のみ）
+      「Menu」に同じ
+
 操作方法（ゲーム中メニュー）
 
   ・「Deal」（フリーセルが存在しない時）
@@ -100,15 +114,8 @@ WinXPスパイダソリティアとの違い
       同じゲームをやり直す
   ・「Give Up」
       メニュー画面に戻る
-  ・「Exit」（iOS以外）
+  ・「Exit App」（iOS以外）
       ゲームを終了
-
-  ・Zキー（Win32のみ）
-      「Shuffle」「Undo」に同じ
-  ・Mキー（Win32のみ）
-      「Hint」に同じ
-  ・Dキー（Win32のみ）
-      「Deal」「Retry」に同じ
 
 遊び方
 
@@ -131,8 +138,6 @@ WinXPスパイダソリティアとの違い
   ・Symbol http://www.adobe.com/
   ・Webdings Wingdings http://www.microsoft.com/
 
-
-
 隠すほどのない隠し要素
 
   ・メニュー画面で「コピーライト領域」をタップ
@@ -141,3 +146,30 @@ WinXPスパイダソリティアとの違い
       10列のままの心折設計となっており、難易度というより詰みゲー度が激増しています。
       作者もLv3までしかクリアできません。それも、極めて稀に。
 
+修正BSDライセンス（英文）
+
+    2012-2013 (C) Masayuki Ushijima.
+
+      Redistribution and use in source and binary forms, with or without modification, 
+    are permitted provided that the following conditions are met:
+
+        1.  Redistributions of source code must retain the above copyright notice,
+          this list of conditions and the following disclaimer.
+        2.  Redistributions in binary form must reproduce the above copyright notice,
+          this list of conditions and the following disclaimer in the documentation
+          and/or other materials provided with the distribution.
+
+      THIS SOFTWARE IS PROVIDED BY THE FREEBSD PROJECT ``AS IS'' AND ANY EXPRESS OR
+    IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+    SHALL THE FREEBSD PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+    POSSIBILITY OF SUCH DAMAGE.
+
+      The views and conclusions contained in the software and documentation are those
+    of the authors and should not be interpreted as representing official policies,
+    either expressed or implied, of the FreeBSD Project.
