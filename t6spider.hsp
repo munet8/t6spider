@@ -1042,8 +1042,6 @@ end
 						_break
 					}
 				next
-			} else {
-				int_ret_of_menu = 3
 			}
 			break
 		}
