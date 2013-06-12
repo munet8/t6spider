@@ -1,5 +1,7 @@
 #include "hsp3util.as"
 
+g_imagemagick = "C:\\usr\\program\\imagemagick\\convert.exe "
+
 ; fon_char.bmp 作成
 
 	screen 0, 300, 300, 4
@@ -15,6 +17,7 @@
 	button goto "fon_suit.bmp (カード)",   *fon_suit
 
 *startx
+	onclick *startx
 	gsel 0
 	stop
 
@@ -41,7 +44,7 @@
 	gsel 1
 	gosub *fon_cha1_draw
 	bmpsave "fon_cha1.bmp"
-	exec "fon_cha1.bmp", 16, "edit"
+	exec g_imagemagick + "fon_cha1.bmp fon_cha1.png"
 
 	gsel 1, -1
 	goto *startx
@@ -69,7 +72,7 @@
 	gsel 1
 	gosub *fon_cha2_draw
 	bmpsave "fon_cha2.bmp"
-	exec "fon_cha2.bmp", 16, "edit"
+	exec g_imagemagick + "fon_cha2.bmp fon_cha2.png"
 
 	gsel 1, -1
 	goto *startx
@@ -97,7 +100,7 @@
 	gsel 1
 	gosub *fon_suit_draw
 	bmpsave "fon_suit.bmp"
-	exec "fon_suit.bmp", 16, "edit"
+	exec g_imagemagick + "-colors 256 fon_suit.bmp fon_suit.png"
 
 	gsel 1, -1
 	goto *startx
@@ -115,7 +118,8 @@
 			c = " "
 			n = j*16 + i + 32
 			poke c, 0, n
-			pos i*g_x+2, j*g_y-2
+			if ( i = 15 ) & ( j = 5 ) :c = "ﾟ"
+			pos i*g_x+2, j*g_y+2
 			font "VL ゴシック",27
 			mes c
 		next
@@ -166,10 +170,34 @@
 			poke c, 0, n
 			pos i*g_x, j*g_y-17
 			swbreak
-		case 7
+		/*case 7
 			font "VL ゴシック",32
 			c = "←↓↑→"
-			pos i*g_x+1, j*g_y-4
+			pos i*g_x+1, j*g_y
+			swbreak*/
+		case 7
+			font "Symbol", 28
+			pos i*g_x+2, j*g_y-5
+			n = 172
+			poke c, 0, n
+			swbreak
+		case 8
+			font "Symbol", 26
+			pos i*g_x+9, j*g_y+2
+			n = 175
+			poke c, 0, n
+			swbreak
+		case 9
+			font "Symbol", 26
+			pos i*g_x+9, j*g_y+2
+			n = 173
+			poke c, 0, n
+			swbreak
+		case 10
+			font "Symbol", 28
+			pos i*g_x+2, j*g_y-5
+			n = 174
+			poke c, 0, n
 			swbreak
 		case 11
 			font "Wingdings",34
@@ -195,6 +223,7 @@
 	for i, 0, 4, 1
 		color 0, 0, 0
 		textmode 2, 0
+
 		switch i
 		case 0 :suits = "ｪ" :color   0,   0, 102 :swbreak
 		case 1 :suits = "ｩ" :color 204,   0,  34 :swbreak
@@ -207,19 +236,22 @@
 			pos i*g_x, j*g_y - 64
 			font "Symbol",56
 			emes suits
-	
-			pos i*g_x+40, j*g_y - 56
+
+			pos i*g_x+40, j*g_y - 48
 			font "VL ゴシック",48
 			if ( 1 < j ) & ( j < 10 ) :emes ""+j
 			if ( j = 10 ) {
-				pos i*g_x+30, j*g_y - 56
+				pos i*g_x+32, j*g_y - 48
 				emes "1"
-				pos i*g_x+48, j*g_y - 56
+				pos i*g_x+49, j*g_y - 48
 				emes "0"
 			}
 			if ( j = 1 )  :emes "A"
 			if ( j = 11 ) :emes "J"
-			if ( j = 12 ) :emes "Q"
+			if ( j = 12 ) {
+				pos i*g_x+40, j*g_y - 50
+				emes "Q"
+			}
 			if ( j = 13 ) :emes "K"
 		next
 	

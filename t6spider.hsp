@@ -32,7 +32,7 @@ int_mousex = 0
 int_mousey = 0
 randomize                                ; —”‰Šú‰»
 
-str_titl1="tan6 Spider¡ v1.3"
+str_titl1="tan6" + g_degree + " Spider¡ v1.3"
 
 sdim arr_strdif, 40, 8
 arr_strdif(0) = "Lv1 £x8"
@@ -106,12 +106,12 @@ repeat
 		if (( int_mousex <= ( 2 * g_screen_x / 3 )) & (( g_screen_view_y ) < int_mousey )) {
 			int_score = -1
 			if ( int_amount_cards  = 104 ) {
-				str_titl1="tan6 Bermuda« v1.3"
+				str_titl1="tan6" + g_degree + " Bermuda« v1.3"
 				int_amount_cards  = 156
 				int_amount_spider = 10
 				int_amount_suits  = 12
 			} else {
-				str_titl1="tan6 Spider¡ v1.3"
+				str_titl1="tan6" + g_degree + " Spider¡ v1.3"
 				int_amount_cards  = 104
 				int_amount_spider = 5
 				int_amount_suits  = 8
@@ -1103,7 +1103,8 @@ end
 
 		; ƒQ[ƒ€“à—e‚ğ•\¦
 		pos 0, g_screen_view_y + ( g_font_y / 2 )
-		if ( int_amount_cards = 104 ) :s = "Spider¡" :else :s = "Bermuda«"
+		s = " tan6" + g_degree + " "
+		if ( int_amount_cards = 104 ) :s += "Spider¡" :else :s += "Bermuda«"
 		s += " Lv" + int_difficulty
 		fprint s, 255
 

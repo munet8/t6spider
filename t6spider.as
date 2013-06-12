@@ -4,6 +4,8 @@
 #packopt type 0
 #packopt xsize 320
 #packopt ysize 480
+;#packopt xsize 400
+;#packopt ysize 640
 #pack "fon_cha1.png"
 #pack "fon_cha2.png"
 #pack "fon_suit.png"
@@ -34,6 +36,10 @@ g_screen_view_y = g_screen_y - ( 2 * g_font_y )
 
 ; 3π/4
 #const global g_3pi4 3*M_PI/4
+
+; tan6°←これ
+g_degree = " "
+poke g_degree, 0, 127
 
 ; トレースビュー行数
 ; リリース時は 0
@@ -183,12 +189,12 @@ g_screen_view_y = g_screen_y - ( 2 * g_font_y )
 #global
 
 #module
-#deffunc suit_border int _x1, int _y1, int _x2, int _y2, int _r, int _g, int b
+#deffunc suit_border int _x1, int _y1, int _x2, int _y2, int _r, int _g, int b, int f
 	; カードの枠を書く
 	color _r, _g, _b
 	pos _x1, _y1
 	line _x1     , _y1 + _y2
-	line _x1 +_x2, _y1 + _y2
+	line _x1 +_x2, _y1 + _y2 
 	line _x1 +_x2, _y1
 	line _x1     , _y1
 	return
