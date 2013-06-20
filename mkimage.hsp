@@ -1,6 +1,7 @@
 #include "hsp3util.as"
 
-g_imagemagick = "C:\\usr\\program\\imagemagick\\convert.exe "
+; imagemagickの場所
+g_imagemagick = "C:\\usr\\program\\imagemagick\\convert.exe"
 
 ; fon_char.bmp 作成
 
@@ -43,11 +44,9 @@ g_imagemagick = "C:\\usr\\program\\imagemagick\\convert.exe "
 *fon_cha1_save
 	gsel 1
 	gosub *fon_cha1_draw
-	bmpsave "fon_cha1.bmp"
-	exec g_imagemagick + "fon_cha1.bmp fon_cha1.png"
 
-	gsel 1, -1
-	goto *startx
+	fname = "fon_cha1"
+	goto *fon_save_common
 
 ; fon_cha2.png プレビュー
 *fon_cha2
@@ -71,11 +70,9 @@ g_imagemagick = "C:\\usr\\program\\imagemagick\\convert.exe "
 *fon_cha2_save
 	gsel 1
 	gosub *fon_cha2_draw
-	bmpsave "fon_cha2.bmp"
-	exec g_imagemagick + "fon_cha2.bmp fon_cha2.png"
 
-	gsel 1, -1
-	goto *startx
+	fname = "fon_cha2"
+	goto *fon_save_common
 
 ; fon_suit.png プレビュー
 *fon_suit
@@ -99,8 +96,17 @@ g_imagemagick = "C:\\usr\\program\\imagemagick\\convert.exe "
 *fon_suit_save
 	gsel 1
 	gosub *fon_suit_draw
-	bmpsave "fon_suit.bmp"
-	exec g_imagemagick + "-colors 256 fon_suit.bmp fon_suit.png"
+
+	fname = "fon_suit"
+	goto *fon_save_common
+
+; 保存共通処理
+*fon_save_common
+	
+	bmpsave fname + ".bmp"
+	exec g_imagemagick + " -colors 256 " + fname + ".bmp " + fname + ".png"
+	wait 20
+	delete fname + ".bmp"
 
 	gsel 1, -1
 	goto *startx
@@ -150,13 +156,13 @@ g_imagemagick = "C:\\usr\\program\\imagemagick\\convert.exe "
 			font "Symbol",46
 			n = 170
 			poke c, 0, n
-			pos i*g_x-2, j*g_y-17
+			pos i*g_x-1, j*g_y-17
 			swbreak
 		case 4
 			font "Symbol",45
 			n = 169
 			poke c, 0, n
-			pos i*g_x, j*g_y-17
+			pos i*g_x-1, j*g_y-17
 			swbreak
 		case 5
 			font "Symbol",46
@@ -168,7 +174,7 @@ g_imagemagick = "C:\\usr\\program\\imagemagick\\convert.exe "
 			font "Symbol",46
 			n = 167
 			poke c, 0, n
-			pos i*g_x, j*g_y-17
+			pos i*g_x-1, j*g_y-17
 			swbreak
 		/*case 7
 			font "VL ゴシック",32
@@ -233,7 +239,8 @@ g_imagemagick = "C:\\usr\\program\\imagemagick\\convert.exe "
 
 		for j, 1, 14, 1
 
-			pos i*g_x, j*g_y - 64
+			pos i*g_x - 1, j*g_y - 64
+			if ( i = 2 ) :pos i*g_x - 2
 			font "Symbol",56
 			emes suits
 
