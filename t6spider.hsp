@@ -11,11 +11,6 @@ title "tan6 spider"
 
 *first
 
-getreq int_os, SYSREQ_PLATFORM           ; OS識別
-flag_is_ios     = (int_os = 1)
-flag_is_android = (int_os = 2)
-flag_is_windows = (int_os = 0)
-
 ; フォント画像のロード（半角）
 celload "fon_cha1.png", 2
 celdiv 2, g_font_png_x, g_font_png_y, 0, 0
@@ -32,7 +27,7 @@ int_mousex = 0
 int_mousey = 0
 randomize                                ; 乱数初期化
 
-str_titl1="tan6" + g_degree + " Spider｡ v1.3"
+str_titl1 = g_tan6 + "Spider｡ v1.3"
 
 sdim arr_strdif, 40, 8
 arr_strdif(0) = "Lv1 ｣x8"
@@ -82,7 +77,6 @@ repeat
 	gfilter 1
 
 	stick stk, 15
-	if ( stk & 128 ) :gosub *exit
 
 	if ( stk & 256 ) {
 		int_mousex = mousex
@@ -106,26 +100,21 @@ repeat
 		if (( int_mousex <= ( 2 * g_screen_x / 3 )) & (( g_screen_view_y ) < int_mousey )) {
 			int_score = -1
 			if ( int_amount_cards  = 104 ) {
-				str_titl1="tan6" + g_degree + " Bermudaｫ v1.3"
+				str_titl1 = g_tan6 + "Bermudaｫ v1.3"
 				int_amount_cards  = 156
 				int_amount_spider = 10
 				int_amount_suits  = 12
 			} else {
-				str_titl1="tan6" + g_degree + " Spider｡ v1.3"
+				str_titl1 = g_tan6 + "Spider｡ v1.3"
 				int_amount_cards  = 104
 				int_amount_spider = 5
 				int_amount_suits  = 8
 			}
 		}
-
-		; 終了させる iOSを除く
-		if ((( 2 * g_screen_x / 3 ) < int_mousex ) & (( g_screen_view_y ) < int_mousey )) {
-			gosub *exit
-		}
 	}
 
 	gosub *sub_bgcolor
-	boxf
+	boxf 0, 0, g_screen_x, g_screen_y
 
 	pos g_font_x, g_font_y/2
 	fprint str_titl1, 255
@@ -180,11 +169,6 @@ repeat
 	pos ( g_screen_x / 3 ) - ( 3 * g_font_x ) , g_screen_view_y + g_font_y
 	fprint "m-ushi", 255
 
-	if ( flag_is_ios ^ 1 ) {
-		pos ( 5 * g_screen_x / 6 ) - ( 2 * g_font_x ), g_screen_view_y + ( g_font_y / 2 )
-		fprint "Exit", 255
-		line 2*g_screen_x/3, g_screen_view_y, 2*g_screen_x/3, g_screen_y
-	}
 	line 0, g_screen_view_y, g_screen_x, g_screen_view_y
 
 	gmode 0
@@ -274,7 +258,6 @@ repeat
 	int_mousey = mousey
 
 	stick stk, 15
-	if ( stk & 128 ) :gosub *exit
 
 	if ( gky ^ 1 ) {
 		if ( int_move_x < 0 ) {
@@ -419,9 +402,6 @@ repeat
 					swbreak
 				case 2 ; 断念する
 					break
-					swbreak
-				case 3 ; AltF4
-					gosub *exit
 					swbreak
 				swend
 
@@ -658,9 +638,6 @@ repeat
 	pos ( 15 * g_screen_x / 16 ) - ( g_font_x / 2 ) :fprint "+", 255
 	pos , g_screen_view_y + g_font_y
 	pos ( 13 * g_screen_x / 16 ) - ( g_font_x / 2 ) :fprint "0", 255
-	/*if ( flag_is_ios ^ 1 ) {
-		pos ( 5 * g_screen_x / 6 ) - ( 2 * g_font_x ) :fprint "Exit", 255
-	}*/
 
 	color 255, 255, 255
 	line 0, g_screen_view_y, g_screen_x, g_screen_view_y
@@ -695,7 +672,7 @@ end
 		a += ( int_amount_spider - int_spider ) * 10
 		if (( a\13 ) > 0 ) :color 255, 0, 0
 	}
-	boxf
+	boxf 0, 0, g_screen_x, g_screen_y
 
 	; 疑似背景・中
 	a = int_locate_x
@@ -1022,11 +999,10 @@ end
 	gfilter 1
 
 	; メニュー数の決定
-	m = 2 :if ( flag_is_ios ^ 1 ) :m++
+	m = 2
 
 	repeat
 		stick stk, 15
-		if ( stk & 128 ) :gosub *exit
 
 		if ( stk & 256 ) {
 			int_mousex = mousex
@@ -1103,7 +1079,7 @@ end
 
 		; ゲーム内容を表示
 		pos 0, g_screen_view_y + ( g_font_y / 2 )
-		s = " tan6" + g_degree + " "
+		s = " " + g_tan6
 		if ( int_amount_cards = 104 ) :s += "Spider｡" :else :s += "Bermudaｫ"
 		s += " Lv" + int_difficulty
 		fprint s, 255
@@ -1118,8 +1094,4 @@ end
 	int_mousex_before = int_mousex
 	int_mousey_before = int_mousey
 
-	return
-
-*exit
-	if ( flag_is_ios ^ 1 ) :end 0
 	return
