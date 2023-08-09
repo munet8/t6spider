@@ -97,7 +97,7 @@ repeat
 		if ( int_difficulty > 0 ) :break
 
 		; スート数選択
-		if (( int_mousex <= ( 2 * g_screen_x / 3 )) & (( g_screen_view_y ) < int_mousey )) {
+		if (( g_screen_view_y ) < int_mousey ) {
 			int_score = -1
 			if ( int_amount_cards  = 104 ) {
 				str_titl1 = g_tan6 + "Bermudaｫ v1.3"
@@ -164,9 +164,9 @@ repeat
 	gmode 5, 0, 0, 204
 
 	color 255, 255, 255
-	pos ( g_screen_x / 3 ) - ( 6 * g_font_x ) , g_screen_view_y
+	pos ( g_screen_x / 2 ) - ( 6 * g_font_x ) , g_screen_view_y
 	fprint "2012-2013(C)", 255
-	pos ( g_screen_x / 3 ) - ( 3 * g_font_x ) , g_screen_view_y + g_font_y
+	pos ( g_screen_x / 2 ) - ( 3 * g_font_x ) , g_screen_view_y + g_font_y
 	fprint "m-ushi", 255
 
 	line 0, g_screen_view_y, g_screen_x, g_screen_view_y
@@ -1070,7 +1070,6 @@ end
 				}
 				swbreak
 			case 1 :fprint "Give Up",  255 :swbreak
-			case 2 :fprint "Exit App", 255 :swbreak
 			swend
 		next
 
