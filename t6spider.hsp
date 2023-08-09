@@ -27,7 +27,7 @@ int_mousex = 0
 int_mousey = 0
 randomize                                ; —”‰Šú‰»
 
-str_titl1 = g_tan6 + "Spider¡ v1.3"
+str_titl1 = g_tan6 + "Spider¡ v1.4"
 
 sdim arr_strdif, 40, 8
 arr_strdif(0) = "Lv1 £x8"
@@ -100,12 +100,12 @@ repeat
 		if (( g_screen_view_y ) < int_mousey ) {
 			int_score = -1
 			if ( int_amount_cards  = 104 ) {
-				str_titl1 = g_tan6 + "Bermuda« v1.3"
+				str_titl1 = g_tan6 + "Bermuda« v1.4"
 				int_amount_cards  = 156
 				int_amount_spider = 10
 				int_amount_suits  = 12
 			} else {
-				str_titl1 = g_tan6 + "Spider¡ v1.3"
+				str_titl1 = g_tan6 + "Spider¡ v1.4"
 				int_amount_cards  = 104
 				int_amount_spider = 5
 				int_amount_suits  = 8
